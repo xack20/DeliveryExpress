@@ -61,7 +61,6 @@ contract DeliveryExpress {
     mapping(address => ShippingInfo[]) public shippingUserInfo;
     
     
-    
     ShippingInfo[] public shippings;
     CourierInfo[] public couriers;
 
@@ -76,6 +75,10 @@ contract DeliveryExpress {
     
     
     
+    
+    
+    
+    
     function addUser(address sender) public{
         uint f = 1;
         for(uint i =0 ; i < users.length ; i ++)
@@ -85,6 +88,36 @@ contract DeliveryExpress {
     }
     
     
+    function setStatus(address userAd,uint index,uint status,uint serviceType) public{
+        require(msg.sender == admin);
+        serviceType == 0 ? courierUserInfo[userAd][index].status = status : shippingUserInfo[userAd][index].status = status; 
+    }
+    
+    
+    
+    function getStatus(address userAd,uint id,uint serviceType) view public returns (uint){
+        require(msg.sender == admin);
+        uint rt;
+        if(serviceType == 0){
+            for(uint i = 0 ; i < courierUserInfo[userAd].length ; i++){
+                if(courierUserInfo[userAd][i].del_id == id)
+                    rt =  courierUserInfo[userAd][i].del_id;
+            }
+        }
+        else{
+            for(uint i = 0 ; i < shippingUserInfo[userAd].length ; i++){
+                if(shippingUserInfo[userAd][i].del_id == id)
+                    rt =  shippingUserInfo[userAd][i].del_id;
+            }
+        }
+        
+        return rt;
+    }
+    
+    
+    
+    
+    
     
     
     
@@ -92,12 +125,7 @@ contract DeliveryExpress {
     
     function setApproval(bool approval, address userAddress, uint serviceType,uint ind) public{
         require(msg.sender == admin);
-        if(serviceType == 0){
-            courierUserInfo[userAddress][ind].approval = approval;
-        }
-        else{
-            shippingUserInfo[userAddress][ind].approval = approval;
-        }
+        serviceType == 0 ? courierUserInfo[userAddress][ind].approval = approval : shippingUserInfo[userAddress][ind].approval = approval; 
     }
     
     
@@ -163,6 +191,8 @@ contract DeliveryExpress {
     
     function getAllShippings() public  returns(ShippingInfo[] memory){
         
+        require(msg.sender == admin);
+        
         delete shippings;
         
         for(uint i = 0 ; i < users.length ; i ++){
@@ -176,6 +206,8 @@ contract DeliveryExpress {
     }
     
     function getAllCouriers() public  returns(CourierInfo[] memory){
+        
+        require(msg.sender == admin);
         
         delete couriers;
         
