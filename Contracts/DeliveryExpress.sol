@@ -1,4 +1,5 @@
 pragma solidity ^0.8.6;
+pragma experimental ABIEncoderV2;
  
  
 contract DeliveryExpress {
@@ -9,7 +10,7 @@ contract DeliveryExpress {
         
         uint del_id;
         
-        bool approval;
+        uint approval;
         uint cost;
         uint status;
         
@@ -29,7 +30,7 @@ contract DeliveryExpress {
         
         uint del_id;
         
-        bool approval;
+        uint approval;
         uint cost;
         uint status;
         
@@ -73,6 +74,41 @@ contract DeliveryExpress {
         admin = msg.sender;
     }
     
+    
+    
+    function payment(uint id,uint serviceType, address payable userAd) public payable {
+        
+        if(serviceType == 0){
+            for(uint i = 0 ; i < courierUserInfo[msg.sender].length ; i++)
+            {
+                if(courierUserInfo[msg.sender][i].del_id == id){
+                    
+                    require(msg.value > courierUserInfo[msg.sender][i].cost);
+                    
+                    uint rem_bal = msg.value - courierUserInfo[msg.sender][i].cost;
+                    (userAd).transfer(rem_bal);
+                    
+                    courierUserInfo[msg.sender][i].approval = 3;
+                }
+                
+            }
+        }
+        else{
+            for(uint i = 0 ; i < shippingUserInfo[msg.sender].length ; i++)
+            {
+                if(shippingUserInfo[msg.sender][i].del_id == id){
+                    
+                    require(msg.value > shippingUserInfo[msg.sender][i].cost);
+                    
+                    uint rem_bal = msg.value - shippingUserInfo[msg.sender][i].cost;
+                    (userAd).transfer(rem_bal);
+                    
+                    shippingUserInfo[msg.sender][i].approval = 3;
+                }
+                
+            }
+        }
+    }
     
     
     
@@ -123,7 +159,7 @@ contract DeliveryExpress {
     
     
     
-    function setApproval(bool approval, address userAddress, uint serviceType,uint ind) public{
+    function setApproval(uint approval, address userAddress, uint serviceType,uint ind) public{
         require(msg.sender == admin);
         serviceType == 0 ? courierUserInfo[userAddress][ind].approval = approval : shippingUserInfo[userAddress][ind].approval = approval; 
     }
@@ -153,7 +189,7 @@ contract DeliveryExpress {
             
             del_id : del_id++,
             
-            approval : false,
+            approval : 0,
             status : 0,
             requestFrom : msg.sender
             
@@ -170,7 +206,7 @@ contract DeliveryExpress {
         ShippingInfo memory sInfo = ShippingInfo({
            cost : cost,
            del_id : del_id++,
-           approval : false,
+           approval : 0,
            status: 0,
            requestFrom : msg.sender,
            
