@@ -1,4 +1,4 @@
-pragma solidity ^0.8.6;
+pragma solidity ^0.4.26;
 pragma experimental ABIEncoderV2;
  
  
@@ -70,13 +70,13 @@ contract DeliveryExpress {
 
 
      
-    constructor() {
+    constructor() public{
         admin = msg.sender;
     }
     
     
     
-    function payment(uint id,uint serviceType, address payable userAd) public payable {
+    function payment(uint id,uint serviceType) public payable {
         
         if(serviceType == 0){
             for(uint i = 0 ; i < courierUserInfo[msg.sender].length ; i++)
@@ -86,7 +86,7 @@ contract DeliveryExpress {
                     require(msg.value > courierUserInfo[msg.sender][i].cost);
                     
                     uint rem_bal = msg.value - courierUserInfo[msg.sender][i].cost;
-                    (userAd).transfer(rem_bal);
+                    (msg.sender).transfer(rem_bal);
                     
                     courierUserInfo[msg.sender][i].approval = 3;
                 }
@@ -94,16 +94,16 @@ contract DeliveryExpress {
             }
         }
         else{
-            for(uint i = 0 ; i < shippingUserInfo[msg.sender].length ; i++)
+            for(uint j = 0 ; j < shippingUserInfo[msg.sender].length ; j++)
             {
-                if(shippingUserInfo[msg.sender][i].del_id == id){
+                if(shippingUserInfo[msg.sender][j].del_id == id){
                     
-                    require(msg.value > shippingUserInfo[msg.sender][i].cost);
+                    require(msg.value > shippingUserInfo[msg.sender][j].cost);
                     
-                    uint rem_bal = msg.value - shippingUserInfo[msg.sender][i].cost;
-                    (userAd).transfer(rem_bal);
+                    uint rem_bal2 = msg.value - shippingUserInfo[msg.sender][j].cost;
+                    (msg.sender).transfer(rem_bal2);
                     
-                    shippingUserInfo[msg.sender][i].approval = 3;
+                    shippingUserInfo[msg.sender][j].approval = 3;
                 }
                 
             }
@@ -115,12 +115,14 @@ contract DeliveryExpress {
     
     
     
-    function addUser(address sender) public{
+    modifier addUser{
         uint f = 1;
         for(uint i =0 ; i < users.length ; i ++)
-            if(sender == users[i])
+            if(msg.sender == users[i])
                 f=0;
-        if(f==1)users.push(sender);
+        if(f==1)users.push(msg.sender);
+        
+        _;
     }
     
     
@@ -131,19 +133,19 @@ contract DeliveryExpress {
     
     
     
-    function getStatus(address userAd,uint id,uint serviceType) view public returns (uint){
-        require(msg.sender == admin);
+    function getStatus(uint id,uint serviceType) view public returns (uint){
+        
         uint rt;
         if(serviceType == 0){
-            for(uint i = 0 ; i < courierUserInfo[userAd].length ; i++){
-                if(courierUserInfo[userAd][i].del_id == id)
-                    rt =  courierUserInfo[userAd][i].del_id;
+            for(uint i = 0 ; i < courierUserInfo[msg.sender].length ; i++){
+                if(courierUserInfo[msg.sender][i].del_id == id)
+                    rt =  courierUserInfo[msg.sender][i].status;
             }
         }
         else{
-            for(uint i = 0 ; i < shippingUserInfo[userAd].length ; i++){
-                if(shippingUserInfo[userAd][i].del_id == id)
-                    rt =  shippingUserInfo[userAd][i].del_id;
+            for(uint j = 0 ; j < shippingUserInfo[msg.sender].length ; j++){
+                if(shippingUserInfo[msg.sender][j].del_id == id)
+                    rt =  shippingUserInfo[msg.sender][j].status;
             }
         }
         
@@ -171,9 +173,9 @@ contract DeliveryExpress {
     
     
     
-    function addCourier( uint cost , uint height , uint width , uint depth , uint weight , uint distance , string memory typeOfService) public {
+    function addCourier( uint cost , uint height , uint width , uint depth , uint weight , uint distance , string memory typeOfService) public addUser{
         
-        addUser(msg.sender);
+
         
         CourierInfo memory cInfo = CourierInfo({
             cost : cost,
@@ -199,9 +201,8 @@ contract DeliveryExpress {
     }
     
     
-    function addShipping(uint cost,uint truckLoadType,uint distance,string memory typeOfCommodity) public {
+    function addShipping(uint cost,uint truckLoadType,uint distance,string memory typeOfCommodity) public addUser {
         
-        addUser(msg.sender);
         
         ShippingInfo memory sInfo = ShippingInfo({
            cost : cost,
