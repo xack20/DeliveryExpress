@@ -29,19 +29,19 @@ contract DeliveryExpress {
     struct CourierInfo {
         
         uint del_id;
-        
-        uint approval;
-        uint cost;
-        uint status;
-        
-        address requestFrom;
-
         uint height;
         uint width;
         uint depth;
         uint weight;
-        
+        uint approval;
+        uint cost;
+        uint status;
         uint distance;
+        
+        address requestFrom;
+
+        
+        
         
         string typeOfService;
     }
