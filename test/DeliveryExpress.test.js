@@ -3,7 +3,7 @@ const ganache = require('ganache-cli');
 const Web3 = require('web3');
 const web3 = new Web3(ganache.provider());
 
-const DeliveryExpress = require('../build/DeliveryExpress.json');
+const DeliveryExpress = require('../Ethereum/build/DeliveryExpress.json');
 
 let accounts;
 let delivery;

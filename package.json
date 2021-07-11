@@ -1,0 +1,31 @@
+{
+  "name": "deliveryexpress",
+  "version": "1.0.0",
+  "description": "Ethereum Based Application on Delivery System",
+  "main": "soljson-v0.4.26+commit.4563c3fc.js",
+  "dependencies": {
+    "ganache-cli": "^6.12.2",
+    "next": "^11.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "solc": "^0.4.26",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "web3": "^1.4.0"
+  },
+  "devDependencies": {
+    "mocha": "^9.0.2"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xack20/DeliveryExpress.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xack20/DeliveryExpress/issues"
+  },
+  "homepage": "https://github.com/xack20/DeliveryExpress#readme"
+}
