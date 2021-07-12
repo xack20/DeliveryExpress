@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Zen+Loop&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lobster&family=Zen+Loop&display=swap');
+
 .logo {
   margin-top: 10px;
   float: left;
@@ -6,4 +9,18 @@
   margin-left: 50px;
   background-image: url('../images/Delivery-logo.png');
   background-size: cover;
+}
+
+.sticky {
+  position: fixed;
+  top: 0;
+  z-index: 1;
+  width : 100%;
+}
+
+.menu{
+  font-size: 25px;
+  font-weight: bold;
+  font-family: 'Zen Loop', cursive;
+  /* font-family: 'Lobster', cursive; */
 }

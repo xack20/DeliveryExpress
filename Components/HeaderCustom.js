@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 
 import { Layout, Menu } from "antd";
 
@@ -15,25 +15,30 @@ const IconFont = createFromIconfontCN({
 
 const { Header } = Layout;
 
-
 const HeaderCustom = (props) => {
-  
-
-
   const menuClicked = (e) => {
     const url = {
-      "1" : "/",
-      "2" : "/admin/",
-      "3" : "/courier/",
-      "4" : "/shipping/",
-      '5' : "/tracking"
+      1: "/",
+      2: "/admin/",
+      3: "/courier/",
+      4: "/shipping/",
+      5: "/tracking",
     };
-    
+
     router.push(url[e.key]);
-  }
-  
+  };
+
   return (
-    <Header style={{ background: "#fff", height: "100px" }}>
+    <Header
+      className={styles.sticky}
+      style={{
+        background: "#fff",
+        height: "90px",
+        boxShadow: "0px 1px 1px rgba(235, 235, 235, 1.0)",
+        marginBottom: "5px",
+        // position : "fixed"
+      }}
+    >
       <div className={styles.logo} />
       <IconFont
         type="icon-facebook"
@@ -42,7 +47,7 @@ const HeaderCustom = (props) => {
           fontSize: "28px",
           color: "#3b5998",
           marginTop: "28px",
-          marginRight: "150px",
+          marginRight: "50px",
         }}
       />
       <TwitterOutlined
@@ -55,21 +60,23 @@ const HeaderCustom = (props) => {
         }}
       />
       <Menu
-      onClick={menuClicked}
+        className={styles.menu}
+        onClick={menuClicked}
         theme="white"
         mode="horizontal"
         style={{
           float: "right",
           border: 0,
           marginTop: "10px",
-          marginRight: "10px",
+          marginRight: "80px",
         }}
       >
         <Menu.Item key="1">Home</Menu.Item>
-        <Menu.Item key="2">All Quotes</Menu.Item>
         <Menu.Item key="3">Courier</Menu.Item>
         <Menu.Item key="4">Shipping</Menu.Item>
         <Menu.Item key="5">Tracking</Menu.Item>
+        <Menu.Item key="2">All Quotes</Menu.Item>
+        
       </Menu>
     </Header>
   );

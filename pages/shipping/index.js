@@ -1,5 +1,6 @@
 //NPM scripts
 import React from "react";
+import Head from 'next/head';
 
 //Own Scripts
 import delivery from "../../Ethereum/delivery.js";
@@ -13,6 +14,9 @@ import styles from "../index.module.css";
 const index = (props) => {
   return (
     <LayoutCustom>
+      <Head>
+        <title>Shipping Service</title>
+      </Head>
       <div className={styles.siteLayoutContent}>Shipping Page</div>
     </LayoutCustom>
   );
