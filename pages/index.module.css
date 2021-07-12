@@ -1,5 +1,9 @@
 .siteLayoutContent {
   min-height: 700px;
   padding: 25px;
-  background: rgb(228, 226, 226);
+  background: rgb(241, 241, 241);
+}
+.List {
+  margin: 50px 50px 0px 50px;
+  min-height: 700px;
 }
