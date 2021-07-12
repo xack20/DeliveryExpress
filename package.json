@@ -4,6 +4,7 @@
   "description": "Ethereum Based Application on Delivery System",
   "main": "soljson-v0.4.26+commit.4563c3fc.js",
   "dependencies": {
+    "antd": "^4.16.6",
     "ganache-cli": "^6.12.2",
     "next": "^11.0.1",
     "react": "^17.0.2",
@@ -16,7 +17,8 @@
     "mocha": "^9.0.2"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "dev": "next dev"
   },
   "repository": {
     "type": "git",
