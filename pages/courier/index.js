@@ -2,18 +2,18 @@
 import React from "react";
 
 //Own Scripts
-import delivery from "../Ethereum/delivery.js";
-import LayoutCustom from "../Components/LayoutCustom.js";
+import delivery from "../../Ethereum/delivery.js";
+import LayoutCustom from "../../Components/LayoutCustom.js";
 
 //CSS imports
 import "antd/dist/antd.css";
-import styles from "./index.module.css";
+import styles from "../index.module.css";
 
 
 const index = (props) => {
   return (
     <LayoutCustom>
-      <div className={styles.siteLayoutContent}>Home Page</div>
+      <div className={styles.siteLayoutContent}>Courier Page</div>
     </LayoutCustom>
   );
 };

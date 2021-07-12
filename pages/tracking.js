@@ -10,19 +10,19 @@ import "antd/dist/antd.css";
 import styles from "./index.module.css";
 
 
-const index = (props) => {
+const tracking = (props) => {
   return (
     <LayoutCustom>
-      <div className={styles.siteLayoutContent}>Home Page</div>
+      <div className={styles.siteLayoutContent}>Tracking Page</div>
     </LayoutCustom>
   );
 };
 
-index.getInitialProps = async () => {
+tracking.getInitialProps = async () => {
   const admin = await delivery.methods.admin().call();
 
   return { admin };
   // return {test : 'Good to go!'}
 };
 
-export default index;
+export default tracking;
