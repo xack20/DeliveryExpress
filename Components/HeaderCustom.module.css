@@ -1,0 +1,9 @@
+.logo {
+  margin-top: 10px;
+  float: left;
+  width: 220px;
+  height: 70px;
+  margin-left: 50px;
+  background-image: url('../images/Delivery-logo.png');
+  background-size: cover;
+}
