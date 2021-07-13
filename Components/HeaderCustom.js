@@ -32,7 +32,7 @@ const HeaderCustom = (props) => {
     <Header
       className={styles.sticky}
       style={{
-        background: "#fff",
+        background: "rgba(255, 255, 255, .8)",
         height: "90px",
         boxShadow: "0px 1px 1px rgba(235, 235, 235, 1.0)",
         marginBottom: "5px",
@@ -69,6 +69,7 @@ const HeaderCustom = (props) => {
           border: 0,
           marginTop: "10px",
           marginRight: "80px",
+          background: "rgba(0, 0, 0, 0)"
         }}
       >
         <Menu.Item key="1">Home</Menu.Item>
