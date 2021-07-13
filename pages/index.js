@@ -22,11 +22,11 @@ const index = (props) => {
   );
 };
 
-index.getInitialProps = async () => {
-  const admin = await delivery.methods.admin().call();
+// index.getInitialProps = async () => {
+//   const admin = await delivery.methods.admin().call();
 
-  return { admin };
-  // return {test : 'Good to go!'}
-};
+//   return { admin };
+//   // return {test : 'Good to go!'}
+// };
 
 export default index;

@@ -9,17 +9,17 @@ contract DeliveryExpress {
     struct ShippingInfo {
         
         uint del_id;
-        
         uint approval;
         uint cost;
         uint status;
+        uint truckLoadType;
+        uint distance;
+        uint typeOfCommodity;
         
         address requestFrom;
         
-        uint truckLoadType;
-        uint distance;
+        string date;
         
-        string typeOfCommodity;
     }
     
     
@@ -37,13 +37,20 @@ contract DeliveryExpress {
         uint cost;
         uint status;
         uint distance;
+        uint typeOfService;
         
         address requestFrom;
 
+        string date;
         
         
-        
-        string typeOfService;
+    }
+
+
+
+    struct UserInfo{
+        string contactNo;
+        string name;
     }
     
     
@@ -54,16 +61,16 @@ contract DeliveryExpress {
     
     
     
-    address[] public users;
+    address[] users;
 
+    mapping(address => UserInfo) Users;
 
-
-    mapping(address => CourierInfo[]) public courierUserInfo;
-    mapping(address => ShippingInfo[]) public shippingUserInfo;
+    mapping(address => CourierInfo[]) courierUserInfo;
+    mapping(address => ShippingInfo[]) shippingUserInfo;
     
     
-    ShippingInfo[] public shippings;
-    CourierInfo[] public couriers;
+    ShippingInfo[]  shippings;
+    CourierInfo[] couriers;
 
 
 
@@ -72,6 +79,21 @@ contract DeliveryExpress {
      
     constructor() public{
         admin = msg.sender;
+    }
+    
+
+
+    function getUserInfo() view public returns(UserInfo){
+        return Users[msg.sender];
+    }
+    
+    
+    function setUserInfo(string name , string contactNo) public {
+        UserInfo memory uInfo = UserInfo({
+           name : name,
+           contactNo : contactNo
+        });
+        Users[msg.sender] = uInfo;
     }
     
     
@@ -173,7 +195,7 @@ contract DeliveryExpress {
     
     
     
-    function addCourier( uint cost , uint height , uint width , uint depth , uint weight , uint distance , string memory typeOfService) public addUser{
+    function addCourier( uint cost , uint height , uint width , uint depth , uint weight , uint distance , uint typeOfService, string date) public addUser{
         
 
         
@@ -188,6 +210,7 @@ contract DeliveryExpress {
             distance : distance,
             
             typeOfService : typeOfService,
+            date : date,
             
             del_id : del_id++,
             
@@ -198,10 +221,11 @@ contract DeliveryExpress {
         });
         
         courierUserInfo[msg.sender].push(cInfo);
+        
     }
     
     
-    function addShipping(uint cost,uint truckLoadType,uint distance,string memory typeOfCommodity) public addUser {
+    function addShipping(uint cost,uint truckLoadType,uint distance,uint typeOfCommodity,string date) public addUser {
         
         
         ShippingInfo memory sInfo = ShippingInfo({
@@ -213,7 +237,9 @@ contract DeliveryExpress {
            
            truckLoadType : truckLoadType,
            distance : distance,
-           typeOfCommodity : typeOfCommodity
+           typeOfCommodity : typeOfCommodity,
+           
+           date : date
         });
         
         shippingUserInfo[msg.sender].push(sInfo);
