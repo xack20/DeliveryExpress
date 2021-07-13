@@ -5,10 +5,13 @@
   "main": "soljson-v0.4.26+commit.4563c3fc.js",
   "dependencies": {
     "antd": "^4.16.6",
+    "bootstrap": "^5.0.2",
     "ganache-cli": "^6.12.2",
+    "moment": "^2.29.1",
     "next": "^11.0.1",
     "next-routes": "^1.4.2",
     "react": "^17.0.2",
+    "react-bootstrap": "^1.6.1",
     "react-dom": "^17.0.2",
     "solc": "^0.4.26",
     "truffle-hdwallet-provider": "^1.0.17",

@@ -5,6 +5,9 @@ import Head from 'next/head';
 //Own Scripts
 import delivery from "../Ethereum/delivery.js";
 import LayoutCustom from "../Components/LayoutCustom.js";
+import {Modal} from 'antd';
+
+
 
 //CSS imports
 import "antd/dist/antd.css";
@@ -18,6 +21,7 @@ const index = (props) => {
         <title>Delivery Express</title>
       </Head>
       <div className={styles.siteLayoutContent}>Home Page</div>
+      
     </LayoutCustom>
   );
 };

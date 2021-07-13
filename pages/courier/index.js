@@ -9,24 +9,64 @@ import LayoutCustom from "../../Components/LayoutCustom.js";
 
 //CSS imports
 import "antd/dist/antd.css";
-import { List, Avatar, Affix, Button, Spin, message } from "antd";
+import {
+  List,
+  Avatar,
+  Affix,
+  Button,
+  Spin,
+  message,
+  Descriptions,
+  Select,
+  Switch,
+} from "antd";
 import { Tooltip } from "antd";
 import { Empty, Tag } from "antd";
+import {
+  Table,
+  Card,
+  Modal,
+  DatePicker,
+  Row,
+  Col,
+  Input,
+  Timeline,
+} from "antd";
+
 import {
   PlusCircleOutlined,
   CheckCircleOutlined,
   SyncOutlined,
   CloseCircleOutlined,
+  CloseCircleTwoTone,
+  DollarCircleOutlined,
+  CloseOutlined,
+  CheckOutlined,
 } from "@ant-design/icons";
 
 import styles from "../index.module.css";
 import router from "next/router";
+
+const { Option } = Select;
 
 // const count = 3;
 
 const index = (props) => {
   const [data, setdata] = useState([]);
   const [loading, setloading] = useState(true);
+  const [VIS, setVis] = useState(false);
+
+  const [listItem, setlistItem] = useState({})
+
+  const approvalChange = (value) => {
+    console.log(value);
+  };
+
+  const PendOrRun = (value) => {
+    console.log(value);
+  };
+
+  const payment = async () => {};
 
   useEffect(async () => {
     const me = await web3.eth.getAccounts();
@@ -44,8 +84,10 @@ const index = (props) => {
     <LayoutCustom>
       <Head>
         <title>Courier Service</title>
-        <link rel="shortcut icon" href="../../images/favicon.ico" />
       </Head>
+
+      {/* Modal Section Starts*/}
+
       <Spin size="large" tip="loading..." spinning={loading}>
         {data.length ? (
           <List
@@ -79,6 +121,10 @@ const index = (props) => {
                     error
                   </Tag>,
                 ]}
+                onClick={() => {
+                  setlistItem(item);
+                  setVis(true);
+                }}
               >
                 {/* <Skeleton avatar title={false} loading={item.loading} active> */}
                 <List.Item.Meta
@@ -86,11 +132,14 @@ const index = (props) => {
                     <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
                   }
                   title={
-                    <a href="https://ant.design">Order ID - {item[0].toString().padStart(5,0)}</a>
+                    <a href="https://ant.design">
+                      Order ID - {item[0].toString().padStart(5, 0)}
+                    </a>
                   }
                   description={item[10]}
                 />
                 <div>{item[11]}</div>
+
                 {/* </Skeleton> */}
               </List.Item>
             )}
@@ -104,7 +153,7 @@ const index = (props) => {
         )}
 
         <Affix
-          style={{ position: "absolute", top: 500, left: 1350 }}
+          style={{ position: "absolute", top: 500, left: 1375 }}
           offsetTop={550}
         >
           <Tooltip
@@ -134,16 +183,56 @@ const index = (props) => {
           </Tooltip>
         </Affix>
       </Spin>
+
+      <Modal
+        visible={VIS}
+        onCancel={() => {
+          setVis(false);
+        }}
+        centered={true}
+        footer={null}
+        closeIcon={
+          <CloseCircleTwoTone
+            twoToneColor="#bfbfbf"
+            style={{ fontSize: "25px" }}
+          />
+        }
+        style={{
+          marginTop: "25px",
+          overflowX: "hidden",
+          borderRadius: "5px",
+        }}
+        width={1000}
+        className="shadow-sm bg-body rounded"
+      >
+
+        <Switch
+          checkedChildren={<CheckOutlined />}
+          unCheckedChildren={<CloseOutlined />}
+          defaultChecked
+        />
+        <h5
+          style={{
+            textAlign: "center",
+            marginBottom: "30px",
+            fontSize: "18px",
+          }}
+        >
+          Details
+        </h5>
+        <Descriptions bordered>
+          <Descriptions.Item label="Approval">Pending</Descriptions.Item>
+          <Descriptions.Item label="Payment">NotPaid</Descriptions.Item>
+          <Descriptions.Item label="Tracking Status">Pending</Descriptions.Item>
+          <Descriptions.Item label="Cost">200 Gwei</Descriptions.Item>
+          <Descriptions.Item label="Full Description"></Descriptions.Item>
+        </Descriptions>
+        <Button type="primary" block danger icon={<DollarCircleOutlined style={{fontSize : '15px'}} />} style={{marginTop : '15px'}}>
+          PayNow
+        </Button>
+      </Modal>
     </LayoutCustom>
   );
 };
-
-// index.getInitialProps = async () => {
-//   const me = await web3.eth.getAccounts();
-//   const DATA = await delivery.methods.setStatus("0x24776C87d7DF39D3Bb2f4ACcAbE8640B650910DB",0,1,0).send({from : me[0],gas : '1000000'});
-
-//   return { me };
-//   // return {test : 'Good to go!'}
-// };
 
 export default index;

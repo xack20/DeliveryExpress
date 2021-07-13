@@ -102,7 +102,7 @@ const index = (props) => {
           placement={"topLeft"}
         >
           <Affix
-            style={{ position: "absolute", top: 500, left: 1350 }}
+            style={{ position: "absolute", top: 500, left: 1375 }}
             offsetTop={550}
           >
             <Button
