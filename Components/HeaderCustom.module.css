@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Zen+Loop&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Zen+Loop&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tourney:wght@100&display=swap');
 
 .logo {
   margin-top: 10px;
@@ -20,7 +21,8 @@
 
 .menu{
   font-size: 18px;
+  /* font-family: 'Tourney', cursive; */
   /* font-weight: bold; */
   /* font-family: 'Zen Loop', cursive; */
-  /* font-family: 'Lobster', cursive; */
+  font-family: 'Lobster', cursive;
 }

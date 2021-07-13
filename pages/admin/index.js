@@ -29,9 +29,9 @@ const index = (props) => {
 
   useEffect(async () => {
     const me = await web3.eth.getAccounts();
-    const DATA = await delivery.methods.getCourier().call({ from: me[0] });
-    setdata(DATA);
-    console.log(DATA);
+    // const DATA = await delivery.methods.getCourier().call({ from: me[0] });
+    // setdata(DATA);
+    // console.log(DATA);
   }, []);
 
   return (
