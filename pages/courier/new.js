@@ -20,6 +20,8 @@ import {
   InputNumber,
   Spin,
   message,
+  notification,
+  Descriptions
 } from "antd";
 import LayoutCustom from "../../Components/LayoutCustom.js";
 
@@ -42,7 +44,7 @@ const CreateQuote = (props) => {
 
     const acc = await web3.eth.getAccounts();
 
-    await delivery.methods
+    const back = await delivery.methods
       .addCourier(
         0,
         values["height"],
@@ -55,11 +57,27 @@ const CreateQuote = (props) => {
       )
       .send({ from: acc[0] });
 
-    message.success({
-      content: "Request Accepted!",
-      style: { marginTop: "10vh" },
-      duration: 1,
+    // console.log(back);
+
+    notification.success({
+      message: `Request Approved`,
+      description: (
+        <div>
+          <p><b>Status : </b>{back.status}</p>
+          <p><b>From : </b>{back.from}</p>
+          <p><b>To : </b>{back.to}</p>
+          <p><b>GasUsed : </b>{back.gasUsed}</p>
+          <p><b>TrasactionHash : </b>{back.transactionHash}</p>
+        </div>
+      ),
+      placement: "bottomRight",
     });
+
+    // message.success({
+    //   content: "Request Accepted!",
+    //   style: { marginTop: "10vh" },
+    //   duration: 1,
+    // });
     setloading(false);
 
     router.push("/courier");
