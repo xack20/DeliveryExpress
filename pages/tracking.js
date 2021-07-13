@@ -18,11 +18,11 @@ const tracking = (props) => {
   );
 };
 
-tracking.getInitialProps = async () => {
-  const admin = await delivery.methods.admin().call();
+// tracking.getInitialProps = async () => {
+//   const admin = await delivery.methods.admin().call();
 
-  return { admin };
-  // return {test : 'Good to go!'}
-};
+//   return { admin };
+//   // return {test : 'Good to go!'}
+// };
 
 export default tracking;
