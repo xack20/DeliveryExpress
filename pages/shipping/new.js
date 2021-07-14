@@ -26,15 +26,25 @@ const formItemLayout = {
 };
 
 const CreateQuote = (props) => {
+
   const [loading, setloading] = useState(false);
 
   const onFinish = async (values) => {
+
     setloading(true);
 
     const acc = await web3.eth.getAccounts();
 
+    if (values['refrigerated'] === undefined)values['refrigerated'] = false;
+    if (values['hazardous'] === undefined)values['hazardous'] = false;
+    if (values['flatbed'] === undefined)values['flatbed'] = false;
+    if (values['ressidentialPickup'] === undefined)values['ressidentialPickup'] = false;
+    if (values['ressidentialDelivery'] === undefined)values['ressidentialDelivery'] = false;   
+
+    console.log(values);
+
     const back = await delivery.methods
-      .addShipping(0, values["tlt"], values["distance"], values["toc"], time)
+      .addShipping(0, values["tlt"], values["distance"], values["toc"],values['flatbed'],values['refrigerated'],values['hazardous'],values['ressidentialPickup'],values['ressidentialDelivery'] ,time)
       .send({ from: acc[0] });
 
     notification.success({
@@ -143,28 +153,32 @@ const CreateQuote = (props) => {
             </Select>
           </Form.Item>
 
-          <Form.Item name="Flatbed" label="Flatbed" valuePropName="checked">
+          <Form.Item name="flatbed" label="Flatbed" valuePropName="checked">
             <Switch />
           </Form.Item>
+
           <Form.Item
-            name="Refrigerated"
+            name="refrigerated"
             label="Refrigerated"
             valuePropName="checked"
           >
+            <Switch/>
+          </Form.Item>
+
+          <Form.Item name="hazardous" label="Hazardous" valuePropName="checked">
             <Switch />
           </Form.Item>
-          <Form.Item name="Hazardous" label="Hazardous" valuePropName="checked">
-            <Switch />
-          </Form.Item>
+
           <Form.Item
-            name="Residential Pickup"
+            name="residentialPickup"
             label="Residential Pickup"
             valuePropName="checked"
           >
             <Switch />
           </Form.Item>
+
           <Form.Item
-            name="Residential Delivery"
+            name="residentialDelivery"
             label="Residential Delivery"
             valuePropName="checked"
           >
@@ -187,12 +201,5 @@ const CreateQuote = (props) => {
     </LayoutCustom>
   );
 };
-
-// CreateQuote.getInitialProps = async () => {
-//   const admin = await delivery.methods.admin().call();
-
-//   return { admin };
-//   // return {test : 'Good to go!'}
-// };
 
 export default CreateQuote;

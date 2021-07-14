@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
+//Own Scripts
+import web3 from "../Ethereum/web3";
+import delivery from "../Ethereum/delivery.js";
 
 import { Layout, Menu } from "antd";
 
@@ -24,9 +28,35 @@ const HeaderCustom = (props) => {
       4: "/shipping/",
       5: "/tracking",
     };
-
+    
     router.push(url[e.key]);
   };
+
+  const [whoAmI, setwhoAmI] = useState("")
+
+  const checkAccount = async () => {
+      const acc = await web3.eth.getAccounts();
+      const admin = await delivery.methods.admin().call();
+      if(admin == acc[0]){
+        setwhoAmI("admin");
+      }
+      else if(acc[0]){
+        setwhoAmI("user");
+      }
+  }
+
+  useEffect(() => {
+    checkAccount();
+    console.log(whoAmI);
+  }, [])
+
+
+  const who = {
+    "admin" : "65%",
+    "user" :  "60%",
+    "" : "75%"
+  }
+ 
 
   return (
     <Header
@@ -65,22 +95,23 @@ const HeaderCustom = (props) => {
         theme="white"
         mode="horizontal"
         style={{
-          float: "right",
+          // float: "right",
           border: 0,
+          marginLeft : who[whoAmI],
           marginTop: "10px",
-          marginRight: "80px",
-          background: "rgba(0, 0, 0, 0)"
+          background: "rgba(0, 0, 0, 0)",
         }}
+        // defaultSelectedKeys={[props.menu]}
       >
         <Menu.Item key="1">Home</Menu.Item>
-        <Menu.Item key="3">Courier</Menu.Item>
-        <Menu.Item key="4">Shipping</Menu.Item>
+        {whoAmI=="user" && <Menu.Item key="3">Courier</Menu.Item>}
+        {whoAmI=="user" && <Menu.Item key="4">Shipping</Menu.Item>}
         <Menu.Item key="5">Tracking</Menu.Item>
-        <Menu.Item key="2">All Quotes</Menu.Item>
-        
+        {whoAmI=="admin" && <Menu.Item key="2">All Quotes</Menu.Item>}
       </Menu>
     </Header>
   );
 };
+
 
 export default HeaderCustom;
