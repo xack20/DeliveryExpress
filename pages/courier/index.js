@@ -19,19 +19,11 @@ import {
   Descriptions,
   Select,
   Switch,
-} from "antd";
-import { Tooltip } from "antd";
-import { Empty, Tag } from "antd";
-import {
-  Table,
-  Card,
   Modal,
-  DatePicker,
-  Row,
-  Col,
-  Input,
-  Timeline,
+  Tooltip,
+  Empty, Tag
 } from "antd";
+
 
 import {
   PlusCircleOutlined,
@@ -47,30 +39,30 @@ import {
 import styles from "../index.module.css";
 import router from "next/router";
 
-const { Option } = Select;
 
-// const count = 3;
 
 const index = (props) => {
   const [data, setdata] = useState([]);
   const [loading, setloading] = useState(true);
   const [VIS, setVis] = useState(false);
 
-  const [listItem, setlistItem] = useState({})
+  const [listItem, setlistItem] = useState({});
 
-  const approvalChange = (value) => {
-    console.log(value);
+  const APPROVAL = { 0: "Pending", 1: "Approved", 2: "Rejected", 3: "Paid" };
+  const STATUS = {
+    0: "Pending",
+    1: "Office Near You",
+    2: "On The Way",
+    3: "Destination Office",
+    4: "Done",
   };
-
-  const PendOrRun = (value) => {
-    console.log(value);
-  };
+  const TOS = { 1: "Regular", 2: "SameDay", 3: "Direct" };
 
   const payment = async () => {};
 
   useEffect(async () => {
-    const me = await web3.eth.getAccounts();
-    const DATA = await delivery.methods.getCourier().call({ from: me[0] });
+    const acc = await web3.eth.getAccounts();
+    const DATA = await delivery.methods.getCourier().call({ from: acc[0] });
     setdata([...DATA].reverse());
     setloading(false);
     message.success({
@@ -123,6 +115,7 @@ const index = (props) => {
                 ]}
                 onClick={() => {
                   setlistItem(item);
+                  console.log(item);
                   setVis(true);
                 }}
               >
@@ -153,7 +146,7 @@ const index = (props) => {
         )}
 
         <Affix
-          style={{ position: "absolute", top: 500, left: 1375 }}
+          style={{ position: "absolute", top: 250, left: 1375 }}
           offsetTop={550}
         >
           <Tooltip
@@ -182,55 +175,78 @@ const index = (props) => {
             />
           </Tooltip>
         </Affix>
-      </Spin>
-
-      <Modal
-        visible={VIS}
-        onCancel={() => {
-          setVis(false);
-        }}
-        centered={true}
-        footer={null}
-        closeIcon={
-          <CloseCircleTwoTone
-            twoToneColor="#bfbfbf"
-            style={{ fontSize: "25px" }}
-          />
-        }
-        style={{
-          marginTop: "25px",
-          overflowX: "hidden",
-          borderRadius: "5px",
-        }}
-        width={1000}
-        className="shadow-sm bg-body rounded"
-      >
-
-        <Switch
-          checkedChildren={<CheckOutlined />}
-          unCheckedChildren={<CloseOutlined />}
-          defaultChecked
-        />
-        <h5
-          style={{
-            textAlign: "center",
-            marginBottom: "30px",
-            fontSize: "18px",
+        <Modal
+          visible={VIS}
+          onCancel={() => {
+            setVis(false);
           }}
+          centered={true}
+          footer={null}
+          closeIcon={
+            <CloseCircleTwoTone
+              twoToneColor="#bfbfbf"
+              style={{ fontSize: "25px" }}
+            />
+          }
+          style={{
+            marginTop: "25px",
+            overflowX: "hidden",
+            borderRadius: "5px",
+          }}
+          width={850}
+          className="shadow-sm bg-body rounded"
         >
-          Details
-        </h5>
-        <Descriptions bordered>
-          <Descriptions.Item label="Approval">Pending</Descriptions.Item>
-          <Descriptions.Item label="Payment">NotPaid</Descriptions.Item>
-          <Descriptions.Item label="Tracking Status">Pending</Descriptions.Item>
-          <Descriptions.Item label="Cost">200 Gwei</Descriptions.Item>
-          <Descriptions.Item label="Full Description"></Descriptions.Item>
-        </Descriptions>
-        <Button type="primary" block danger icon={<DollarCircleOutlined style={{fontSize : '15px'}} />} style={{marginTop : '15px'}}>
-          PayNow
-        </Button>
-      </Modal>
+          <Switch
+            checkedChildren={<CheckOutlined />}
+            unCheckedChildren={<CloseOutlined />}
+            defaultChecked
+          />
+          <h5
+            style={{
+              textAlign: "center",
+              marginBottom: "30px",
+              fontSize: "18px",
+            }}
+          >
+            Details
+          </h5>
+          <Descriptions bordered>
+            <Descriptions.Item label="Approval">
+              {listItem[5] == "3" ? "Approved" : APPROVAL[listItem[5]]}
+            </Descriptions.Item>
+            <Descriptions.Item label="Payment">
+              {listItem[5] == "3" ? "Paid" : "Not Paid"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Tracking Status">
+              {STATUS[listItem[7]]}
+            </Descriptions.Item>
+            <Descriptions.Item label="Cost">{listItem[6]}</Descriptions.Item>
+            <Descriptions.Item label="Full Description">
+              Height : {listItem[1]} , Width : {listItem[2]} , Depth :{" "}
+              {listItem[3]} , Weight : {listItem[4]}
+              <br />
+              Distance : {listItem[8]}
+              <br />
+              Type of Service : {}
+              <br />
+              Order ID : {parseInt(listItem[0]).toString().padStart(5, 0)}
+              <br />
+              Date : {listItem[11]}
+            </Descriptions.Item>
+          </Descriptions>
+          {listItem[5] == "1" && (
+            <Button
+              type="primary"
+              block
+              danger
+              icon={<DollarCircleOutlined style={{ fontSize: "15px" }} />}
+              style={{ marginTop: "35px", background: " #595959" }}
+            >
+              PayNow
+            </Button>
+          )}
+        </Modal>
+      </Spin>
     </LayoutCustom>
   );
 };

@@ -1,303 +1,222 @@
 pragma solidity ^0.4.26;
 pragma experimental ABIEncoderV2;
- 
- 
+
 contract DeliveryExpress {
-    
-    
-   
     struct ShippingInfo {
-        
-        uint del_id;
-        uint approval;
-        uint cost;
-        uint status;
-        uint truckLoadType;
-        uint distance;
-        uint typeOfCommodity;
-        
+        uint256 del_id;
+        uint256 approval;
+        uint256 cost;
+        uint256 status;
+        uint256 truckLoadType;
+        uint256 distance;
+        uint256 typeOfCommodity;
         address requestFrom;
-        
         string date;
-        
+        bool flatbed;
+        bool refrigerated;
+        bool hazardous;
+        bool residentialPickup;
+        bool residentialDelivery;
     }
-    
-    
-    
-    
 
     struct CourierInfo {
-        
-        uint del_id;
-        uint height;
-        uint width;
-        uint depth;
-        uint weight;
-        uint approval;
-        uint cost;
-        uint status;
-        uint distance;
-        uint typeOfService;
-        
+        uint256 del_id;
+        uint256 height;
+        uint256 width;
+        uint256 depth;
+        uint256 weight;
+        uint256 approval;
+        uint256 cost;
+        uint256 status;
+        uint256 distance;
+        uint256 typeOfService;
         address requestFrom;
-
         string date;
-        
-        
+        bool insurance;
     }
 
-
-
-    struct UserInfo{
-        string contactNo;
+    struct UserInfo {
         string name;
+        string email;
+        bool active;
     }
-    
-    
-    
 
     address public admin;
-    uint del_id = 1;
-    
-    
-    
-    address[] users;
+    address[] public users;
+
+    uint256 courier_id = 1;
+    uint256 shipping_id = 2;
 
     mapping(address => UserInfo) Users;
-
     mapping(address => CourierInfo[]) courierUserInfo;
     mapping(address => ShippingInfo[]) shippingUserInfo;
-    
-    
-    ShippingInfo[]  shippings;
-    CourierInfo[] couriers;
 
-
-
-
-
-     
-    constructor() public{
+    constructor() public {
         admin = msg.sender;
     }
-    
 
-
-    function getUserInfo() view public returns(UserInfo){
+    function getUserInfo() public view returns (UserInfo) {
         return Users[msg.sender];
     }
-    
-    
-    function setUserInfo(string name , string contactNo) public {
+
+    function setUserInfo(string name, string email) public {
         UserInfo memory uInfo = UserInfo({
-           name : name,
-           contactNo : contactNo
+            name: name,
+            email: email,
+            active: true
         });
         Users[msg.sender] = uInfo;
     }
-    
-    
-    
-    function payment(uint id,uint serviceType) public payable {
-        
-        if(serviceType == 0){
-            for(uint i = 0 ; i < courierUserInfo[msg.sender].length ; i++)
-            {
-                if(courierUserInfo[msg.sender][i].del_id == id){
-                    
-                    require(msg.value > courierUserInfo[msg.sender][i].cost);
-                    
-                    uint rem_bal = msg.value - courierUserInfo[msg.sender][i].cost;
-                    (msg.sender).transfer(rem_bal);
-                    
-                    courierUserInfo[msg.sender][i].approval = 3;
-                }
-                
-            }
-        }
-        else{
-            for(uint j = 0 ; j < shippingUserInfo[msg.sender].length ; j++)
-            {
-                if(shippingUserInfo[msg.sender][j].del_id == id){
-                    
-                    require(msg.value > shippingUserInfo[msg.sender][j].cost);
-                    
-                    uint rem_bal2 = msg.value - shippingUserInfo[msg.sender][j].cost;
-                    (msg.sender).transfer(rem_bal2);
-                    
-                    shippingUserInfo[msg.sender][j].approval = 3;
-                }
-                
-            }
+
+    function makePayment(uint256 id, uint256 index) public payable {
+        uint256 rem_bal;
+
+        if (id & 1 == 1) {
+            require(msg.value > courierUserInfo[msg.sender][index].cost);
+            require(id == courierUserInfo[msg.sender][index].del_id);
+
+            rem_bal = msg.value - courierUserInfo[msg.sender][index].cost;
+            (msg.sender).transfer(rem_bal);
+
+            courierUserInfo[msg.sender][index].approval = 3;
+        } else {
+            require(msg.value > shippingUserInfo[msg.sender][index].cost);
+            require(id == shippingUserInfo[msg.sender][index].del_id);
+
+            rem_bal = msg.value - shippingUserInfo[msg.sender][index].cost;
+            (msg.sender).transfer(rem_bal);
+
+            shippingUserInfo[msg.sender][index].approval = 3;
         }
     }
-    
-    
-    
-    
-    
-    
-    modifier addUser{
-        uint f = 1;
-        for(uint i =0 ; i < users.length ; i ++)
-            if(msg.sender == users[i])
-                f=0;
-        if(f==1)users.push(msg.sender);
-        
+
+    modifier addUser {
+        if (!Users[msg.sender].active) {
+            users.push(msg.sender);
+            Users[msg.sender].active = true;
+        }
         _;
     }
-    
-    
-    function setStatus(address userAd,uint index,uint status,uint serviceType) public{
-        require(msg.sender == admin);
-        serviceType == 0 ? courierUserInfo[userAd][index].status = status : shippingUserInfo[userAd][index].status = status; 
-    }
-    
-    
-    
-    function getStatus(uint id,uint serviceType) view public returns (uint){
-        
-        uint rt;
-        if(serviceType == 0){
-            for(uint i = 0 ; i < courierUserInfo[msg.sender].length ; i++){
-                if(courierUserInfo[msg.sender][i].del_id == id)
-                    rt =  courierUserInfo[msg.sender][i].status;
-            }
-        }
-        else{
-            for(uint j = 0 ; j < shippingUserInfo[msg.sender].length ; j++){
-                if(shippingUserInfo[msg.sender][j].del_id == id)
-                    rt =  shippingUserInfo[msg.sender][j].status;
-            }
-        }
-        
-        return rt;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    function setApproval(uint approval, address userAddress, uint serviceType,uint ind) public{
-        require(msg.sender == admin);
-        serviceType == 0 ? courierUserInfo[userAddress][ind].approval = approval : shippingUserInfo[userAddress][ind].approval = approval; 
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    function addCourier( uint cost , uint height , uint width , uint depth , uint weight , uint distance , uint typeOfService, string date) public addUser{
-        
 
-        
+    function getAllUsers() public view returns (address[]) {
+        require(msg.sender == admin);
+        return users;
+    }
+
+    function setStatus(
+        address userAd,
+        uint256 index,
+        uint256 status,
+        uint256 serviceType
+    ) public {
+        require(msg.sender == admin);
+        serviceType == 0
+            ? courierUserInfo[userAd][index].status = status
+            : shippingUserInfo[userAd][index].status = status;
+    }
+
+    function getStatus(uint256 id, uint256 index)
+        public
+        view
+        returns (uint256)
+    {
+        return
+            (id & 1 == 1)
+                ? courierUserInfo[msg.sender][index].status
+                : shippingUserInfo[msg.sender][index].status;
+    }
+
+    function setApproval(
+        uint256 approval,
+        address userAddress,
+        uint256 id,
+        uint256 index
+    ) public {
+        require(msg.sender == admin);
+        (id & 1 == 1)
+            ? courierUserInfo[userAddress][index].approval = approval
+            : shippingUserInfo[userAddress][index].approval = approval;
+    }
+
+    function setCost(
+        uint256 cost,
+        address userAddress,
+        uint256 id,
+        uint256 index
+    ) public {
+        require(msg.sender == admin);
+        (id & 1 == 1)
+            ? courierUserInfo[userAddress][index].cost = cost
+            : shippingUserInfo[userAddress][index].cost = cost;
+    }
+
+    function addCourier(
+        uint256 cost,
+        uint256 height,
+        uint256 width,
+        uint256 depth,
+        uint256 weight,
+        uint256 distance,
+        uint256 typeOfService,
+        bool insurance,
+        string date
+    ) public addUser {
         CourierInfo memory cInfo = CourierInfo({
-            cost : cost,
-            
-            height : height,
-            width : width,
-            depth : depth,
-            weight : weight,
-            
-            distance : distance,
-            
-            typeOfService : typeOfService,
-            date : date,
-            
-            del_id : del_id++,
-            
-            approval : 0,
-            status : 0,
-            requestFrom : msg.sender
-            
+            cost: cost,
+            height: height,
+            width: width,
+            depth: depth,
+            weight: weight,
+            distance: distance,
+            typeOfService: typeOfService,
+            insurance: insurance,
+            date: date,
+            del_id: courier_id += 2,
+            approval: 0,
+            status: 0,
+            requestFrom: msg.sender
         });
-        
+
         courierUserInfo[msg.sender].push(cInfo);
-        
     }
-    
-    
-    function addShipping(uint cost,uint truckLoadType,uint distance,uint typeOfCommodity,string date) public addUser {
-        
-        
+
+    function addShipping(
+        uint256 cost,
+        uint256 truckLoadType,
+        uint256 distance,
+        uint256 typeOfCommodity,
+        bool flatbed,
+        bool refrigerated,
+        bool hazardous,
+        bool residentialPickup,
+        bool residentialDelivery,
+        string date
+    ) public addUser {
         ShippingInfo memory sInfo = ShippingInfo({
-           cost : cost,
-           del_id : del_id++,
-           approval : 0,
-           status: 0,
-           requestFrom : msg.sender,
-           
-           truckLoadType : truckLoadType,
-           distance : distance,
-           typeOfCommodity : typeOfCommodity,
-           
-           date : date
+            cost: cost,
+            del_id: shipping_id += 2,
+            approval: 0,
+            status: 0,
+            requestFrom: msg.sender,
+            truckLoadType: truckLoadType,
+            distance: distance,
+            typeOfCommodity: typeOfCommodity,
+            date: date,
+            flatbed: flatbed,
+            refrigerated: refrigerated,
+            hazardous: hazardous,
+            residentialPickup: residentialPickup,
+            residentialDelivery: residentialDelivery
         });
-        
+
         shippingUserInfo[msg.sender].push(sInfo);
-        
     }
-    
-    
-    
-    
-    
-    
-    
-    function getAllShippings() public  returns(ShippingInfo[] memory){
-        
-        require(msg.sender == admin);
-        
-        delete shippings;
-        
-        for(uint i = 0 ; i < users.length ; i ++){
-                for(uint j = 0 ; j < shippingUserInfo[users[i]].length ; j++){
-                    shippings.push(shippingUserInfo[users[i]][j]);
-            }
-        }
-        
-        
-        return shippings;
-    }
-    
-    function getAllCouriers() public  returns(CourierInfo[] memory){
-        
-        require(msg.sender == admin);
-        
-        delete couriers;
-        
-        for(uint i = 0 ; i < users.length ; i ++){
-                for(uint j = 0 ; j < courierUserInfo[users[i]].length ; j++){
-                    couriers.push(courierUserInfo[users[i]][j]);
-                }
-        }
-        
-        return couriers;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    function getShipping() public view returns(ShippingInfo[] memory){
+
+    function getShipping() public view returns (ShippingInfo[] memory) {
         return shippingUserInfo[msg.sender];
     }
-    
-    function getCourier() public view returns(CourierInfo[] memory){
+
+    function getCourier() public view returns (CourierInfo[] memory) {
         return courierUserInfo[msg.sender];
     }
-    
-    
 }

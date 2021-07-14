@@ -44,6 +44,8 @@ const CreateQuote = (props) => {
 
     const acc = await web3.eth.getAccounts();
 
+    if(values['insurance'] === undefined) values['insurance'] = false;
+
     const back = await delivery.methods
       .addCourier(
         0,
@@ -53,6 +55,7 @@ const CreateQuote = (props) => {
         values["weight"],
         values["distance"],
         values["tos"],
+        values["insurance"],
         time
       )
       .send({ from: acc[0] });
@@ -219,7 +222,7 @@ const CreateQuote = (props) => {
           >
             <Select placeholder="Please select..">
               <Option value="1">Regular</Option>
-              <Option value="2">Same Day</Option>
+              <Option value="2">SameDay</Option>
               <Option value="3">Direct</Option>
             </Select>
           </Form.Item>
@@ -249,11 +252,5 @@ const CreateQuote = (props) => {
   );
 };
 
-// CreateQuote.getInitialProps = async () => {
-//   const admin = await delivery.methods.admin().call();
-
-//   return { admin };
-//   // return {test : 'Good to go!'}
-// };
 
 export default CreateQuote;
