@@ -55,11 +55,45 @@ const index = (props) => {
   };
 
 
+  const payment = async () => {
+    setVis(false);
+    setloading(true);
+
+    const val = (parseInt(listItem.cost)+1000000000000).toString();
+
+    // console.log(val,listItem.del_id,listItem.index);
+
+    const acc = await web3.eth.getAccounts();
+
+    const back = await delivery.methods.makePayment(
+      listItem.del_id,
+      listItem.index
+    ).send({
+      from : acc[0],
+      value : web3.utils.toWei(val.toString(), "ether")
+    });
+
+    console.log(back);
+
+    setloading(false);
+};
+
+
 
   useEffect(async () => {
     const acc = await web3.eth.getAccounts();
-    const DATA = await delivery.methods.getShipping().call({ from: acc[0] });
-    setdata([...DATA].reverse());
+    const DATA = await delivery.methods.getShipping(acc[0]).call({ from: acc[0] });
+    
+    let tempList=[];
+    for(let i=0;i<DATA.length;i++){
+      tempList.push({
+        index:i,
+        ...DATA[i]
+      });
+    }
+    setdata([...tempList].reverse());
+
+
     setloading(false);
     message.success({
       content: "Data Loaded Successfully!",
@@ -225,13 +259,14 @@ const index = (props) => {
               Date : {listItem[8]}
             </Descriptions.Item>
           </Descriptions>
-          {listItem[5] == "1" && (
+          {listItem.approval == "1" && (
             <Button
               type="primary"
               block
               danger
               icon={<DollarCircleOutlined style={{ fontSize: "15px" }} />}
               style={{ marginTop: "35px", background: " #595959" }}
+              onClick={payment}
             >
               PayNow
             </Button>

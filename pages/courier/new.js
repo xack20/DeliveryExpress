@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import Head from "next/head";
 import web3 from "../../Ethereum/web3";
-import time from "../../utils/time";
 import router from "next/router";
 
 //Own Scripts
@@ -56,7 +55,7 @@ const CreateQuote = (props) => {
         values["distance"],
         values["tos"],
         values["insurance"],
-        time
+        new Date().toLocaleString()
       )
       .send({ from: acc[0] });
 

@@ -5,7 +5,6 @@ import Head from "next/head";
 //Own Scripts
 import delivery from "../../Ethereum/delivery.js";
 import web3 from "../../Ethereum/web3";
-import time from "../../utils/time";
 import router from "next/router";
 
 //CSS imports
@@ -44,7 +43,7 @@ const CreateQuote = (props) => {
     console.log(values);
 
     const back = await delivery.methods
-      .addShipping(0, values["tlt"], values["distance"], values["toc"],values['flatbed'],values['refrigerated'],values['hazardous'],values['ressidentialPickup'],values['ressidentialDelivery'] ,time)
+      .addShipping(0, values["tlt"], values["distance"], values["toc"],values['flatbed'],values['refrigerated'],values['hazardous'],values['ressidentialPickup'],values['ressidentialDelivery'] ,new Date().toLocaleString())
       .send({ from: acc[0] });
 
     notification.success({
