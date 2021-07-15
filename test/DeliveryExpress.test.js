@@ -29,11 +29,17 @@ describe('DeleveryExpress', () => {
     })
 
     it('Check -> user can add a shipping request',async() =>{
-
+        const ret1 = await delivery.methods.getShipping(accounts[0]).call({from : accounts[0], gas: '3000000'});
+        await delivery.methods.addShipping("1","1","1","1",true,true,true,true,true,"date").send({from : accounts[0], gas: '3000000'});
+        const ret2 = await delivery.methods.getShipping(accounts[0]).call({from : accounts[0], gas: '3000000'});
+        assert.notEqual(ret1.length,ret2.length);
     })
 
     it('Check -> user can add a courier request',async() =>{
-      
+        const ret1 = await delivery.methods.getCourier(accounts[0]).call({from : accounts[0], gas: '3000000'});
+        await delivery.methods.addCourier("1","1","1","1","1","1","1",true,"date").send({from : accounts[0], gas: '3000000'});
+        const ret2 = await delivery.methods.getCourier(accounts[0]).call({from : accounts[0], gas: '3000000'});
+        assert.notEqual(ret1.length,ret2.length);``
     })
 
     it('Check -> user can view their shipping requests',async() =>{
@@ -45,7 +51,8 @@ describe('DeleveryExpress', () => {
     })
 
     it('Check -> admin change the request approval flag',async() =>{
-      
+        await delivery.methods.addCourier("1","1","1","1","1","1","1",true,"date").send({from : accounts[0], gas: '3000000'});
+        await delivery.methods.setApproval(
     })
 
     it('Check -> admin change the delivery tracking status',async() =>{
