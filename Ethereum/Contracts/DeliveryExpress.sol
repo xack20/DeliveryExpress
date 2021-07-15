@@ -212,11 +212,11 @@ contract DeliveryExpress {
         shippingUserInfo[msg.sender].push(sInfo);
     }
 
-    function getShipping() public view returns (ShippingInfo[] memory) {
-        return shippingUserInfo[msg.sender];
+    function getShipping(address userAddress) public view returns (ShippingInfo[] memory) {
+        return shippingUserInfo[userAddress];
     }
 
-    function getCourier() public view returns (CourierInfo[] memory) {
-        return courierUserInfo[msg.sender];
+    function getCourier(address userAddress) public view returns (CourierInfo[] memory) {
+        return courierUserInfo[userAddress];
     }
 }

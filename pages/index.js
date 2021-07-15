@@ -7,7 +7,7 @@ import delivery from "../Ethereum/delivery.js";
 import LayoutCustom from "../Components/LayoutCustom.js";
 import {Modal} from 'antd';
 
-
+// var perf =require('./home.html');
 
 //CSS imports
 import "antd/dist/antd.css";
@@ -20,7 +20,9 @@ const index = (props) => {
       <Head>
         <title>Delivery Express</title>
       </Head>
-      <div className={styles.siteLayoutContent}>Home Page</div>
+      <div className={styles.siteLayoutContent}>
+        
+      </div>
       
     </LayoutCustom>
   );

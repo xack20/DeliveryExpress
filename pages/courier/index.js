@@ -58,12 +58,44 @@ const index = (props) => {
   };
   const TOS = { 1: "Regular", 2: "SameDay", 3: "Direct" };
 
-  const payment = async () => {};
+  const payment = async () => {
+      setVis(false);
+      setloading(true);
+
+      const val = (parseInt(listItem.cost)+1000000000000).toString();
+
+      // console.log(val,listItem.del_id,listItem.index);
+
+      const acc = await web3.eth.getAccounts();
+
+      const back = await delivery.methods.makePayment(
+        listItem.del_id,
+        listItem.index
+      ).send({
+        from : acc[0],
+        value : web3.utils.toWei(val, "ether")
+      });
+
+      console.log(back);
+
+      setloading(false);
+  };
 
   useEffect(async () => {
     const acc = await web3.eth.getAccounts();
-    const DATA = await delivery.methods.getCourier().call({ from: acc[0] });
-    setdata([...DATA].reverse());
+    const DATA = await delivery.methods.getCourier(acc[0]).call({ from: acc[0] });
+    
+    let tempList=[];
+    for(let i=0;i<DATA.length;i++){
+      tempList.push({
+        index:i,
+        ...DATA[i]
+      });
+    }
+    setdata([...tempList].reverse());
+    
+    
+    
     setloading(false);
     message.success({
       content: "Data Loaded Successfully!",
@@ -241,6 +273,7 @@ const index = (props) => {
               danger
               icon={<DollarCircleOutlined style={{ fontSize: "15px" }} />}
               style={{ marginTop: "35px", background: " #595959" }}
+              onClick={payment}
             >
               PayNow
             </Button>
