@@ -41,6 +41,8 @@ const CreateQuote = (props) => {
   const onFinish = async (values) => {
     setloading(true);
 
+    try{
+
     const acc = await web3.eth.getAccounts();
 
     if(values['insurance'] === undefined) values['insurance'] = false;
@@ -81,6 +83,19 @@ const CreateQuote = (props) => {
     //   duration: 1,
     // });
     setloading(false);
+  }catch(error){
+    notification.error({
+      message: `Error Occured`,
+      description: (
+        <div>
+          <p><b>Error : </b>{error}</p>
+        </div>
+      ),
+      placement: "bottomRight",
+    });
+    setloading(false);
+  }
+  setloading(false);
 
     router.push("/courier");
   };

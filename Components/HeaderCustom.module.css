@@ -10,6 +10,7 @@
   margin-left: 50px;
   background-image: url('../images/Delivery-logo.png');
   background-size: cover;
+  cursor: pointer;
 }
 
 .sticky {

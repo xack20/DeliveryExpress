@@ -13,11 +13,11 @@ const { Content } = Layout;
 
 const LayoutCustom = (props) => {
   return (
-    <Layout style={{background : "rgba(235, 235, 235, 0.50)"}} >
+    <Layout style={{background : "rgba(255, 255, 255, 0.50)"}} >
       
       <HeaderCustom/>
 
-      <Content style={{ padding: "0 50px" , marginTop: "95px"}}>
+      <Content style={{ padding: "0 0px" , marginTop: "90px"}}>
         
         
         {props.children}
