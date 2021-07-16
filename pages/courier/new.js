@@ -49,7 +49,6 @@ const CreateQuote = (props) => {
 
     const back = await delivery.methods
       .addCourier(
-        0,
         values["height"],
         values["width"],
         values["depth"],

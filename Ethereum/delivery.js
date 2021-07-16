@@ -3,7 +3,7 @@ import DeliveryExpress from './build/DeliveryExpress.json';
 
 const instance = new web3.eth.Contract(
   JSON.parse(DeliveryExpress.interface),
-  '0x647f21a13665cD3739f4655b7f579B19231FEB40'
+  '0xb660952d915B41Ba63EaA20615E67F68f8147c04'
 );
 
 export default instance;

@@ -42,7 +42,7 @@ import {
   CheckOutlined,
   ClockCircleFilled,
   ClockCircleOutlined,
-  InfoCircleTwoTone
+  InfoCircleTwoTone,
 } from "@ant-design/icons";
 
 const { Option } = Select;
@@ -135,6 +135,7 @@ const index = (props) => {
       });
       setloading(false);
     }
+    setloading(false);
   };
 
   useEffect(async () => {
@@ -153,6 +154,8 @@ const index = (props) => {
           .getAllUsers()
           .call({ from: acc[0] });
 
+        console.log(allUsers);
+
         let QuotesList = [];
 
         for (let i = 0; i < allUsers.length; i++) {
@@ -163,10 +166,15 @@ const index = (props) => {
             .getShipping(allUsers[i])
             .call({ from: acc[0] });
 
+          const info = await delivery.methods
+            .getUserInfo(allUsers[i])
+            .call({ from: acc[0] });
+
           for (let i = 0; i < couriers.length; i++) {
             QuotesList.push({
               index: i,
               ...couriers[i],
+              ...info,
             });
           }
 
@@ -174,11 +182,13 @@ const index = (props) => {
             QuotesList.push({
               index: i,
               ...shippings[i],
+              ...info,
             });
           }
         }
 
         QuotesList.sort((a, b) => new Date(b["date"]) - new Date(a["date"]));
+        console.log(QuotesList);
 
         setdata(QuotesList);
 
@@ -203,7 +213,7 @@ const index = (props) => {
           duration: 2,
         });
       }
-    } catch {
+    } catch (error) {
       notification.error({
         message: `Something went wrong!`,
         description: error.message,
@@ -211,6 +221,7 @@ const index = (props) => {
       });
       setloading(false);
     }
+    setloading(false);
   }, []);
 
   return (
@@ -240,6 +251,15 @@ const index = (props) => {
                 renderItem={(item) => (
                   <List.Item
                     actions={[
+                      <Tag
+                        color={
+                          parseInt(item.del_id) % 2 == 1 ? "purple" : "cyan"
+                        }
+                      >
+                        {parseInt(item.del_id) % 2 == 1
+                          ? "Courier Service"
+                          : "Shipping Service"}
+                      </Tag>,
                       <Tooltip
                         title="Approval Status"
                         color={
@@ -317,6 +337,7 @@ const index = (props) => {
                       }
                       description={item.requestFrom}
                     />
+
                     <div>{item.date}</div>
                   </List.Item>
                 )}
@@ -359,7 +380,10 @@ const index = (props) => {
                 Details
               </h5>
               {parseInt(listItem.del_id) & 1 ? (
-                <Descriptions bordered>
+                <Descriptions
+                  bordered
+                  title={"Requested From " + listItem.name}
+                >
                   <Descriptions.Item label="Order ID">
                     {parseInt(listItem.del_id).toString().padStart(5, 0)}
                   </Descriptions.Item>
@@ -368,12 +392,16 @@ const index = (props) => {
                     {listItem.date}
                   </Descriptions.Item>
 
+                  <Descriptions.Item label="Email">
+                    {listItem.email}
+                  </Descriptions.Item>
+
                   <Descriptions.Item label="Cost">
                     {listItem.cost} $
                   </Descriptions.Item>
 
                   <Descriptions.Item label="Track ID">
-                    {parseInt(listItem[0]).toString().padStart(5, 0)}-
+                    {parseInt(listItem.del_id).toString().padStart(5, 0)}-
                     {listItem.index}
                   </Descriptions.Item>
 
@@ -387,7 +415,10 @@ const index = (props) => {
                   </Descriptions.Item>
                 </Descriptions>
               ) : (
-                <Descriptions bordered>
+                <Descriptions
+                  bordered
+                  title={"Requested From " + listItem.name}
+                >
                   <Descriptions.Item label="Order ID">
                     {parseInt(listItem.del_id).toString().padStart(5, 0)}
                   </Descriptions.Item>
@@ -396,12 +427,16 @@ const index = (props) => {
                     {listItem.date}
                   </Descriptions.Item>
 
+                  <Descriptions.Item label="Email">
+                    {listItem.email}
+                  </Descriptions.Item>
+
                   <Descriptions.Item label="Cost">
                     {listItem.cost} $
                   </Descriptions.Item>
 
                   <Descriptions.Item label="Track ID">
-                    {parseInt(listItem[0]).toString().padStart(5, 0)}-
+                    {parseInt(listItem.del_id).toString().padStart(5, 0)}-
                     {listItem.index}
                   </Descriptions.Item>
 

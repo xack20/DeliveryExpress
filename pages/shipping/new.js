@@ -55,7 +55,6 @@ const CreateQuote = (props) => {
 
       const back = await delivery.methods
         .addShipping(
-          0,
           values["tlt"],
           values["distance"],
           values["toc"],

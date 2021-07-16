@@ -17,11 +17,11 @@ const { Search } = Input;
 
 const tracking = (props) => {
   const STATUS = {
-    0: "Pending",
-    1: "Office Near You",
+    0: "You have it!",
+    1: "Office (Near You)",
     2: "On The Way",
-    3: "Destination Office",
-    4: "Done",
+    3: "Office (Near Dest.)",
+    4: "Reached to Dest.",
   };
 
   const [state, setstate] = useState("");
