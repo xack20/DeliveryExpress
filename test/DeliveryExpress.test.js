@@ -17,21 +17,29 @@ beforeEach(async () => {
 });
 
 describe("DeleveryExpress", () => {
-  it("Check -> deploys a DeliveryExpress Contract", () => {
+  it("Deploys a DeliveryExpress Contract", () => {
     assert.ok(delivery.options.address);
   });
 
-  it("Check -> deployer is the system Admin", async () => {
+  it("Deployer is the system Admin", async () => {
     const admin = await delivery.methods.admin().call();
     assert.strictEqual(accounts[0], admin);
   });
+
+  it("User information check", async () => {
+    await delivery.methods.setUserInfo("Xack","xack@gmail.com").send({ from: accounts[0] , gas: "3000000" });
+    const userInfo = await delivery.methods.getUserInfo(accounts[0]).call({from : accounts[0] ,gas : "3000000" });
+    assert.strictEqual("Xack", userInfo[0]);
+  });
+
+
 
   it("Check -> user can add a shipping request", async () => {
     const ret1 = await delivery.methods
       .getShipping(accounts[0])
       .call({ from: accounts[0], gas: "3000000" });
     await delivery.methods
-      .addShipping("0", "1", "1", "1", true, true, true, true, true, "date")
+      .addShipping("1", "1", "1", true, true, true, true, true, "date")
       .send({ from: accounts[0], gas: "3000000" });
     const ret2 = await delivery.methods
       .getShipping(accounts[0])
@@ -44,7 +52,7 @@ describe("DeleveryExpress", () => {
       .getCourier(accounts[0])
       .call({ from: accounts[0], gas: "3000000" });
     await delivery.methods
-      .addCourier("0", "1", "1", "1", "1", "1", "1", true, "date")
+      .addCourier( "1", "1", "1", "1", "1", "1", true, "date")
       .send({ from: accounts[0], gas: "3000000" });
     const ret2 = await delivery.methods
       .getCourier(accounts[0])
@@ -54,20 +62,20 @@ describe("DeleveryExpress", () => {
 
   it("Check -> admin change the request approval flag", async () => {
     await delivery.methods
-      .addCourier("0", "1", "1", "1", "1", "1", "1", true, "date")
-      .send({ from: accounts[0], gas: "3000000" });
+      .addCourier( "1", "1", "1", "1", "1", "1", true, "date")
+      .send({ from: accounts[1], gas: "3000000" });
     await delivery.methods
-      .setApproval("0", accounts[0], 3, 0)
-      .send({ from: accounts[0], gas: "3000000" });
+      .setApproval("0", accounts[1], 3, 0)
+      .send({ from: accounts[1], gas: "3000000" });
     const arr = await delivery.methods
-      .getCourier(accounts[0])
-      .call({ from: accounts[0], gas: "3000000" });
-    assert.strictEqual(arr[0].approval, "0");
+      .getCourier(accounts[1])
+      .call({ from: accounts[1], gas: "3000000" });
+    assert.strictEqual(arr[1].approval, "0");
   });
 
   it("Check -> admin change the delivery tracking status", async () => {
     await delivery.methods
-      .addCourier("0", "1", "1", "1", "1", "1", "1", true, "date")
+      .addCourier( "1", "1", "1", "1", "1", "1", true, "date")
       .send({ from: accounts[0], gas: "3000000" });
     await delivery.methods
       .setStatus(accounts[0], 0, "0", 0)
@@ -80,7 +88,7 @@ describe("DeleveryExpress", () => {
 
   it("Check -> admin set the cost of any service/order", async () => {
     await delivery.methods
-      .addCourier("0", "1", "1", "1", "1", "1", "1", true, "date")
+      .addCourier( "1", "1", "1", "1", "1", "1", true, "date")
       .send({ from: accounts[0], gas: "3000000" });
     await delivery.methods
       .setCost(30, accounts[0], 3, 0)
@@ -95,10 +103,8 @@ describe("DeleveryExpress", () => {
     
     const ret1 = await delivery.methods.getAllUsers().call({ from: accounts[0], gas: "3000000" });
 
-    await delivery.methods
-      .addCourier("0", "1", "1", "1", "1", "1", "1", true, "date")
-      .send({ from: accounts[0], gas: "3000000" });
-
+    await delivery.methods.setUserInfo("Xack","xack@gmail.com").send({ from: accounts[0] , gas: "3000000" });
+    
     const ret2 = await delivery.methods.getAllUsers().call({ from: accounts[0], gas: "3000000" });
     
     assert.notStrictEqual(ret1.length, ret2.length);
@@ -107,7 +113,7 @@ describe("DeleveryExpress", () => {
   
   it("Check -> users payment method", async () => {
     await delivery.methods
-      .addCourier("0", "1", "1", "1", "1", "1", "1", true, "date")
+      .addCourier("1", "1", "1", "1", "1", "1", true, "date")
       .send({ from: accounts[0], gas: "3000000" });
 
     await delivery.methods

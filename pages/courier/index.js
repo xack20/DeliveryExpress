@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import web3 from "../../Ethereum/web3";
+import Router from "next/router";
 
 //Own Scripts
 import delivery from "../../Ethereum/delivery.js";
@@ -17,13 +18,14 @@ import {
   Spin,
   message,
   Descriptions,
-  Select,
   Switch,
   Modal,
   Tooltip,
   Empty,
   Tag,
   notification,
+  Form,
+  Input,
 } from "antd";
 
 import {
@@ -37,19 +39,22 @@ import {
   CheckOutlined,
   ClockCircleFilled,
   ClockCircleOutlined,
-  InfoCircleTwoTone
+  InfoCircleTwoTone,
 } from "@ant-design/icons";
 
 import styles from "../index.module.css";
 import router from "next/router";
 
 const index = (props) => {
+  /// state variables
   const [data, setdata] = useState([]);
   const [loading, setloading] = useState(true);
   const [VIS, setVis] = useState(false);
+  const [vis, setvis] = useState(false);
 
   const [listItem, setlistItem] = useState({});
 
+  /// helper variable
   const APPROVAL = {
     0: ["Pending", "default", <ClockCircleOutlined />],
     1: ["Approved", "success", <CheckCircleOutlined />],
@@ -66,11 +71,54 @@ const index = (props) => {
 
   const TOS = { 1: "Regular", 2: "SameDay", 3: "Direct" };
 
+  /// User info form
+  const onFinish = async (values) => {
+    setvis(false);
+    setloading(true);
+    console.log("Success:", values);
+
+    try {
+      const acc = await web3.eth.getAccounts();
+      const back = await delivery.methods
+        .setUserInfo(values["username"], values["email"])
+        .send({ from: acc[0] });
+    } catch (error) {
+      setloading(false);
+      notification.error({
+        message: error.message,
+        description: error.description,
+        placement: "bottomRight",
+      });
+    }
+
+    setloading(false);
+    // Router.reload(window.location.pathname);
+    router.push("/courier/new");
+  };
+
+  const newQuote = async () => {
+    try {
+      const acc = await web3.eth.getAccounts();
+      const info = await delivery.methods
+        .getUserInfo(acc[0])
+        .call({ from: acc[0] });
+      if (!info.name) {
+        setvis(true);
+      } else router.push("/courier/new");
+    } catch (error) {
+      notification.error({
+        message: error.message,
+        description: error.description,
+        placement: "bottomRight",
+      });
+    }
+  };
+
   const payment = async () => {
     setVis(false);
     setloading(true);
 
-    const val = ((parseInt(listItem.cost) + 1) * 0.00051)
+    const val = ((parseInt(listItem.cost) + 1) * 0.00052)
       .toString()
       .substring(0, 5);
 
@@ -86,7 +134,43 @@ const index = (props) => {
           from: acc[0],
           value: web3.utils.toWei(val, "ether"),
         });
-        setloading(false);
+      setloading(false);
+
+      const balNow = await web3.eth.getBalance(acc[0]);
+      const balDiff = (prevBal - balNow).toString();
+
+      notification.success({
+        message: `Request Approved`,
+        description: (
+          <div>
+            <p>
+              <b>Status : </b>
+              {back.status}
+            </p>
+            <p>
+              <b>TO : </b>
+              {back.to}
+            </p>
+            <p>
+              <b>Value sent : </b>
+              {balDiff}
+            </p>
+            <p>
+              <b>Balance Now : </b>
+              {parseInt(balNow) / 1000000000000000000}
+            </p>
+            <p>
+              <b>GasUsed : </b>
+              {back.gasUsed}
+            </p>
+            <p>
+              <b>TrasactionHash : </b>
+              {back.transactionHash}
+            </p>
+          </div>
+        ),
+        placement: "bottomRight",
+      });
     } catch (error) {
       notification.error({
         message: `Something went wrong!`,
@@ -95,44 +179,10 @@ const index = (props) => {
       });
       setloading(false);
     }
-
     setloading(false);
-
-    const balNow = await web3.eth.getBalance(acc[0]);
-    const balDiff = (prevBal - balNow).toString();
-
-    notification.success({
-      message: `Request Approved`,
-      description: (
-        <div>
-          <p>
-            <b>Status : </b>
-            {back.status}
-          </p>
-          <p>
-            <b>TO : </b>
-            {back.to}
-          </p>
-          <p>
-            <b>Value sent : </b>
-            {balDiff}
-          </p>
-          <p>
-            <b>Balance Now : </b>
-            {parseInt(balNow)/1000000000000000000}
-          </p>
-          <p>
-            <b>GasUsed : </b>
-            {back.gasUsed}
-          </p>
-          <p>
-            <b>TrasactionHash : </b>
-            {back.transactionHash}
-          </p>
-        </div>
-      ),
-      placement: "bottomRight",
-    });
+    setTimeout(function () {
+      Router.reload(window.location.pathname);
+    }, 5000);
   };
 
   useEffect(async () => {
@@ -141,29 +191,31 @@ const index = (props) => {
     try {
       acc = await web3.eth.getAccounts();
       DATA = await delivery.methods.getCourier(acc[0]).call({ from: acc[0] });
+
+      let tempList = [];
+      for (let i = 0; i < DATA.length; i++) {
+        tempList.push({
+          index: i,
+          ...DATA[i],
+        });
+      }
+      setdata([...tempList].reverse());
+
+      setloading(false);
+      message.success({
+        content: "Data Loaded Successfully!",
+        style: { marginTop: "10vh" },
+        duration: 0.5,
+      });
     } catch (error) {
+      setloading(false);
       notification.error({
         message: `Something went wrong!`,
         description: error.message,
         placement: "bottomRight",
       });
     }
-
-    let tempList = [];
-    for (let i = 0; i < DATA.length; i++) {
-      tempList.push({
-        index: i,
-        ...DATA[i],
-      });
-    }
-    setdata([...tempList].reverse());
-
     setloading(false);
-    message.success({
-      content: "Data Loaded Successfully!",
-      style: { marginTop: "10vh" },
-      duration: 0.5,
-    });
   }, []);
 
   return (
@@ -245,7 +297,8 @@ const index = (props) => {
                   }
                   title={
                     <a href="#">
-                      Order ID - {item[0].toString().padStart(5, 0)}
+                      Tracking ID -{" "}
+                      {item.del_id.toString().padStart(5, 0) + "-" + item.index}
                     </a>
                   }
                   description={item[10]}
@@ -284,9 +337,7 @@ const index = (props) => {
                   }}
                 />
               }
-              onClick={() => {
-                router.push("/courier/new");
-              }}
+              onClick={newQuote}
 
               // style={{boxShadow: "0 5px 15px rgba(145, 92, 182, .4)"}}
             />
@@ -357,6 +408,82 @@ const index = (props) => {
               PayNow
             </Button>
           )}
+        </Modal>
+
+        <Modal
+          visible={vis}
+          onCancel={() => {
+            setvis(false);
+          }}
+          centered={true}
+          footer={null}
+          closeIcon={
+            <CloseCircleTwoTone
+              twoToneColor="#bfbfbf"
+              style={{ fontSize: "25px" }}
+            />
+          }
+          style={{
+            marginTop: "25px",
+            overflowX: "hidden",
+            borderRadius: "5px",
+          }}
+          width={850}
+          className="shadow-sm bg-body rounded"
+        >
+          <Form
+            name="basic"
+            labelCol={{
+              span: 8,
+            }}
+            wrapperCol={{
+              span: 16,
+            }}
+            onFinish={onFinish}
+            style={{ marginTop: "50px", marginRight: "120px" }}
+          >
+            <Form.Item
+              label="Username"
+              name="username"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your username!",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your email!",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              wrapperCol={{
+                offset: 8,
+                span: 16,
+              }}
+              style={{ marginLeft: "100px" }}
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                style={{ marginLeft: "100px" }}
+              >
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
         </Modal>
       </Spin>
     </LayoutCustom>

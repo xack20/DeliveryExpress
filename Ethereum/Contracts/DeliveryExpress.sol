@@ -37,6 +37,13 @@ contract DeliveryExpress {
         string date;
         bool insurance;
     }
+    
+    // For users info
+    struct UserInfo {
+        string name;
+        string email;
+        bool active;
+    }
 
 
     address public admin;
@@ -45,17 +52,35 @@ contract DeliveryExpress {
     uint256 courier_id = 1;
     uint256 shipping_id = 2;
 
-    mapping(address => bool) Users;
+    mapping(address => UserInfo) Users;
     mapping(address => CourierInfo[]) courierUserInfo;
     mapping(address => ShippingInfo[]) shippingUserInfo;
 
     constructor() public {
         admin = msg.sender;
     }
+    
+    
+    // for accessing user information
+    function getUserInfo(address ad) external view returns (UserInfo) {
+        return Users[ad];
+    }
+    
+    
+    // for setting user information
+    function setUserInfo(string name, string email) external {
+        UserInfo memory uInfo = UserInfo({
+            name: name,
+            email: email,
+            active: true
+        });
+        users.push(msg.sender);
+        Users[msg.sender] = uInfo;
+    }
 
     
     // function for handling payment 
-    function makePayment(uint256 id, uint256 index) public payable {
+    function makePayment(uint256 id, uint256 index) external payable {
         uint256 rem_bal;
 
         if (id & 1 == 1) {
@@ -75,19 +100,11 @@ contract DeliveryExpress {
 
             shippingUserInfo[msg.sender][index].approval = 3;
         }
-    }
-
-    // this modifier will be used for adding users when they are trying to make any quote request
-    modifier addUser {
-        if (!Users[msg.sender]) {
-            users.push(msg.sender);
-            Users[msg.sender] = true;
-        }
-        _;
+        admin.transfer(address(this).balance);
     }
 
     // only admin can get users list using this function
-    function getAllUsers() public view returns (address[]) {
+    function getAllUsers() external view returns (address[]) {
         require(msg.sender == admin);
         return users;
     }
@@ -98,7 +115,7 @@ contract DeliveryExpress {
         uint256 index,
         uint256 status,
         uint256 serviceType
-    ) public {
+    ) external {
         require(msg.sender == admin);
         serviceType == 0
             ? courierUserInfo[userAd][index].status = status
@@ -107,7 +124,7 @@ contract DeliveryExpress {
 
     // only user can get tracking status of products using this function
     function getStatus(uint256 id, uint256 index)
-        public
+        external
         view
         returns (uint256)
     {
@@ -123,7 +140,7 @@ contract DeliveryExpress {
         address userAddress,
         uint256 id,
         uint256 index
-    ) public {
+    ) external {
         require(msg.sender == admin);
         (id & 1 == 1)
             ? courierUserInfo[userAddress][index].approval = approval
@@ -136,7 +153,7 @@ contract DeliveryExpress {
         address userAddress,
         uint256 id,
         uint256 index
-    ) public {
+    ) external {
         require(msg.sender == admin);
         (id & 1 == 1)
             ? courierUserInfo[userAddress][index].cost = cost
@@ -146,7 +163,6 @@ contract DeliveryExpress {
 
     // user can add courier quote request using this function
     function addCourier(
-        uint256 cost,
         uint256 height,
         uint256 width,
         uint256 depth,
@@ -155,9 +171,9 @@ contract DeliveryExpress {
         uint256 typeOfService,
         bool insurance,
         string date
-    ) public addUser {
+    ) external {
         CourierInfo memory cInfo = CourierInfo({
-            cost: cost,
+            cost: 0,
             height: height,
             width: width,
             depth: depth,
@@ -177,7 +193,6 @@ contract DeliveryExpress {
 
     // user can add shipping quote request using this function
     function addShipping(
-        uint256 cost,
         uint256 truckLoadType,
         uint256 distance,
         uint256 typeOfCommodity,
@@ -187,9 +202,9 @@ contract DeliveryExpress {
         bool residentialPickup,
         bool residentialDelivery,
         string date
-    ) public addUser {
+    ) external {
         ShippingInfo memory sInfo = ShippingInfo({
-            cost: cost,
+            cost: 0,
             del_id: shipping_id += 2,
             approval: 0,
             status: 0,
@@ -209,12 +224,12 @@ contract DeliveryExpress {
     }
 
     // user and adin can get all courier quotes using this function
-    function getShipping(address userAddress) public view returns (ShippingInfo[] memory) {
+    function getShipping(address userAddress) external view returns (ShippingInfo[] memory) {
         return shippingUserInfo[userAddress];
     }
 
     // user and adin can get all shipping quotes using this function
-    function getCourier(address userAddress) public view returns (CourierInfo[] memory) {
+    function getCourier(address userAddress) external view returns (CourierInfo[] memory) {
         return courierUserInfo[userAddress];
     }
 }

@@ -1,19 +1,63 @@
 //NPM scripts
-import React from "react";
+import React,{useEffect} from "react";
 import Head from "next/head";
 
 //Own Scripts
 import delivery from "../Ethereum/delivery.js";
 import LayoutCustom from "../Components/LayoutCustom.js";
-import { Modal, Carousel } from "antd";
+import { Icon, notification } from "antd";
 
 // var perf =require('./home.html');
 
 //CSS imports
 import "antd/dist/antd.css";
 import styles from "./index.module.css";
+import web3 from "../Ethereum/web3.js";
+import { duration } from "moment";
 
 const index = (props) => {
+
+  useEffect(async() => {
+    try {
+      
+      const acc = await web3.eth.getAccounts();
+      const admin = await delivery.methods.admin().call({from : acc[0]});
+      const info = await delivery.methods.getUserInfo(acc[0]).call({ from: acc[0] });
+      if(acc[0] === admin){
+        notification.info({
+          message: "Admin loggedin",
+          description: "You are the admin of this project",
+          placement : "bottomRight",
+          duration : 3
+        });
+      }
+      else if(info.name){
+        notification.info({
+          message: "User loggedin",
+          description: "Welcome "+info.name,
+          placement : "bottomRight",
+          duration: 3
+        });
+      }
+      else{
+        notification.warning({
+          message: "No Account Found",
+          description: "You are not registered!\n or, Install metamask and make sure you have logged in!",
+          placement : "bottomRight",
+          duration : 3
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: error.message,
+        description: error.description,
+        placement: 'top-right',
+        duration: 3
+      });
+    }
+  }, [])
+
+
   const contentStyle = {
     height: "160px",
     color: "#fff",
