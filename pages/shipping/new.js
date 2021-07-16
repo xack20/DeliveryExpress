@@ -10,7 +10,17 @@ import router from "next/router";
 //CSS imports
 import "antd/dist/antd.css";
 
-import { Form, Select, Switch, Slider, Button, Spin, message,Descriptions,notification } from "antd";
+import {
+  Form,
+  Select,
+  Switch,
+  Slider,
+  Button,
+  Spin,
+  message,
+  Descriptions,
+  notification,
+} from "antd";
 import LayoutCustom from "../../Components/LayoutCustom.js";
 
 const { Option } = Select;
@@ -25,46 +35,106 @@ const formItemLayout = {
 };
 
 const CreateQuote = (props) => {
-
   const [loading, setloading] = useState(false);
 
   const onFinish = async (values) => {
-
     setloading(true);
 
-    const acc = await web3.eth.getAccounts();
+    try {
+      const acc = await web3.eth.getAccounts();
 
-    if (values['refrigerated'] === undefined)values['refrigerated'] = false;
-    if (values['hazardous'] === undefined)values['hazardous'] = false;
-    if (values['flatbed'] === undefined)values['flatbed'] = false;
-    if (values['ressidentialPickup'] === undefined)values['ressidentialPickup'] = false;
-    if (values['ressidentialDelivery'] === undefined)values['ressidentialDelivery'] = false;   
+      if (values["refrigerated"] === undefined) values["refrigerated"] = false;
+      if (values["hazardous"] === undefined) values["hazardous"] = false;
+      if (values["flatbed"] === undefined) values["flatbed"] = false;
+      if (values["ressidentialPickup"] === undefined)
+        values["ressidentialPickup"] = false;
+      if (values["ressidentialDelivery"] === undefined)
+        values["ressidentialDelivery"] = false;
 
-    console.log(values);
+      console.log(values);
 
-    const back = await delivery.methods
-      .addShipping(0, values["tlt"], values["distance"], values["toc"],values['flatbed'],values['refrigerated'],values['hazardous'],values['ressidentialPickup'],values['ressidentialDelivery'] ,new Date().toLocaleString())
-      .send({ from: acc[0] });
+      const back = await delivery.methods
+        .addShipping(
+          0,
+          values["tlt"],
+          values["distance"],
+          values["toc"],
+          values["flatbed"],
+          values["refrigerated"],
+          values["hazardous"],
+          values["ressidentialPickup"],
+          values["ressidentialDelivery"],
+          new Date().toLocaleString()
+        )
+        .send({ from: acc[0] });
 
-    notification.success({
-      message: `Request Approved`,
-      description: (
-        <div>
-          <p><b>Status : </b>{back.status}</p>
-          <p><b>From : </b>{back.from}</p>
-          <p><b>To : </b>{back.to}</p>
-          <p><b>GasUsed : </b>{back.gasUsed}</p>
-          <p><b>TrasactionHash : </b>{back.transactionHash}</p>
-        </div>
-      ),
-      placement: "bottomRight",
-    });
+      notification.success({
+        message: `Request Approved`,
+        description: (
+          <div>
+            <p>
+              <b>Status : </b>
+              {back.status}
+            </p>
+            <p>
+              <b>From : </b>
+              {back.from}
+            </p>
+            <p>
+              <b>To : </b>
+              {back.to}
+            </p>
+            <p>
+              <b>GasUsed : </b>
+              {back.gasUsed}
+            </p>
+            <p>
+              <b>TrasactionHash : </b>
+              {back.transactionHash}
+            </p>
+          </div>
+        ),
+        placement: "bottomRight",
+      });
 
-    // message.success({
-    //   content: "Request Accepted!",
-    //   style: { marginTop: "10vh" },
-    //   duration: 1,
-    // });
+      // message.success({
+      //   content: "Request Accepted!",
+      //   style: { marginTop: "10vh" },
+      //   duration: 1,
+      // });
+      setloading(false);
+    } catch (error) {
+      notification.error({
+        message: `Request Rejected`,
+        description: (
+          <div>
+            <p>
+              <b>Status : </b>
+              {error.status}
+            </p>
+            <p>
+              <b>From : </b>
+              {error.from}
+            </p>
+            <p>
+              <b>To : </b>
+              {error.to}
+            </p>
+            <p>
+              <b>GasUsed : </b>
+              {error.gasUsed}
+            </p>
+            <p>
+              <b>TrasactionHash : </b>
+              {error.transactionHash}
+            </p>
+          </div>
+        ),
+        placement: "bottomRight",
+      });
+      setloading(false);
+    }
+
     setloading(false);
 
     router.push("/shipping");
@@ -161,7 +231,7 @@ const CreateQuote = (props) => {
             label="Refrigerated"
             valuePropName="checked"
           >
-            <Switch/>
+            <Switch />
           </Form.Item>
 
           <Form.Item name="hazardous" label="Hazardous" valuePropName="checked">

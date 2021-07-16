@@ -8,8 +8,8 @@ const { Footer } = Layout;
 
 const FooterCustom = () => {
   return (
-    <Footer style={{ textAlign: "center" }}>
-      DeliveryExpress ©2021 Created by Zakaria
+    <Footer style={{ textAlign: "center" ,backgroundColor : 'black'}} >
+      <p style={{color : 'white'}}>DeliveryExpress ©2021 Created by Zakaria</p>
     </Footer>
   );
 };

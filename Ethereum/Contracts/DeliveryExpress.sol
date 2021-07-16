@@ -2,6 +2,8 @@ pragma solidity ^0.4.26;
 pragma experimental ABIEncoderV2;
 
 contract DeliveryExpress {
+    
+    // Structure for shipping quote
     struct ShippingInfo {
         uint256 del_id;
         uint256 approval;
@@ -18,7 +20,8 @@ contract DeliveryExpress {
         bool residentialPickup;
         bool residentialDelivery;
     }
-
+    
+    // Structure for courier quote
     struct CourierInfo {
         uint256 del_id;
         uint256 height;
@@ -35,11 +38,6 @@ contract DeliveryExpress {
         bool insurance;
     }
 
-    struct UserInfo {
-        string name;
-        string email;
-        bool active;
-    }
 
     address public admin;
     address[] public users;
@@ -47,7 +45,7 @@ contract DeliveryExpress {
     uint256 courier_id = 1;
     uint256 shipping_id = 2;
 
-    mapping(address => UserInfo) Users;
+    mapping(address => bool) Users;
     mapping(address => CourierInfo[]) courierUserInfo;
     mapping(address => ShippingInfo[]) shippingUserInfo;
 
@@ -55,19 +53,8 @@ contract DeliveryExpress {
         admin = msg.sender;
     }
 
-    function getUserInfo() public view returns (UserInfo) {
-        return Users[msg.sender];
-    }
-
-    function setUserInfo(string name, string email) public {
-        UserInfo memory uInfo = UserInfo({
-            name: name,
-            email: email,
-            active: true
-        });
-        Users[msg.sender] = uInfo;
-    }
-
+    
+    // function for handling payment 
     function makePayment(uint256 id, uint256 index) public payable {
         uint256 rem_bal;
 
@@ -90,19 +77,22 @@ contract DeliveryExpress {
         }
     }
 
+    // this modifier will be used for adding users when they are trying to make any quote request
     modifier addUser {
-        if (!Users[msg.sender].active) {
+        if (!Users[msg.sender]) {
             users.push(msg.sender);
-            Users[msg.sender].active = true;
+            Users[msg.sender] = true;
         }
         _;
     }
 
+    // only admin can get users list using this function
     function getAllUsers() public view returns (address[]) {
         require(msg.sender == admin);
         return users;
     }
 
+    // only admin can set tracking status of products using this function
     function setStatus(
         address userAd,
         uint256 index,
@@ -115,6 +105,7 @@ contract DeliveryExpress {
             : shippingUserInfo[userAd][index].status = status;
     }
 
+    // only user can get tracking status of products using this function
     function getStatus(uint256 id, uint256 index)
         public
         view
@@ -126,6 +117,7 @@ contract DeliveryExpress {
                 : shippingUserInfo[msg.sender][index].status;
     }
 
+    // only admin can perform quotes approval using this function
     function setApproval(
         uint256 approval,
         address userAddress,
@@ -138,6 +130,7 @@ contract DeliveryExpress {
             : shippingUserInfo[userAddress][index].approval = approval;
     }
 
+    // only admin can set cost for any service using this function
     function setCost(
         uint256 cost,
         address userAddress,
@@ -150,6 +143,8 @@ contract DeliveryExpress {
             : shippingUserInfo[userAddress][index].cost = cost;
     }
 
+
+    // user can add courier quote request using this function
     function addCourier(
         uint256 cost,
         uint256 height,
@@ -180,6 +175,7 @@ contract DeliveryExpress {
         courierUserInfo[msg.sender].push(cInfo);
     }
 
+    // user can add shipping quote request using this function
     function addShipping(
         uint256 cost,
         uint256 truckLoadType,
@@ -212,10 +208,12 @@ contract DeliveryExpress {
         shippingUserInfo[msg.sender].push(sInfo);
     }
 
+    // user and adin can get all courier quotes using this function
     function getShipping(address userAddress) public view returns (ShippingInfo[] memory) {
         return shippingUserInfo[userAddress];
     }
 
+    // user and adin can get all shipping quotes using this function
     function getCourier(address userAddress) public view returns (CourierInfo[] memory) {
         return courierUserInfo[userAddress];
     }

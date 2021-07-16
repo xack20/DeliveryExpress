@@ -1,9 +1,33 @@
 .siteLayoutContent {
-  min-height: 700px;
+  min-height: 600px;
   padding: 25px;
-  background: rgb(241, 241, 241);
+  /* background: rgb(241, 241, 241); */
+  background-image: url("https://lh3.googleusercontent.com/zP_37ruzN8aOebhwv9f1w6M_aOwagRtWrbqQBC_sltIB9Ed22p-76w0yK_89sm2yCwKz3o-s4Fgoy6YVO8IT6W4ms5wTHGiTMQXjiTCUsiJ7hv5X1T8mbvz58mKwiS9zeTh7P6awlfULUvi4KiEfGOQnJMaLFRREYJV9M7JucjTon-CZkYb7vBIlOUPvam1N2FapmugJ6F6h1zezo7akQ6m6nKVEGpo4oze-H2jpAML3v7BWOXlJdiKiUQKIO0TWrdI34nMYaro4pNoMCB-BgN5So5Y7Vvi7UDjVfkHnpLoE922Hd8ZQzugFlufSvsIHfYl7ZihEhB6VAH9at82T1_VGydkhzZn3C8X8iuDiqBaBGoFQP6aaL2g1YSUygD1PjIkxKezamFIisxL-IzTZc-8WmfVmD3riKyyVtjx1YTBw3KRKRAhk3IttGQlK_gWVX-0_0Q_dRyLtsx6y3B4VtVXKkieKdLAhWU-4704aFB_30loWxreGUaIYgPLVdmR0VCtm4KPkMtNu7dogb8XrF8Q19cDDwXe_espMKPDVVQ_CfneXGr7r-ItdC5Lno_1kv5f_oJBXhgLGbWo6j4p7-R2dmWK1WNQU804UINJbrjrxANfyQA5HWY-SbMxg32SlI7baVYuG6OEMWEAelOxDtmBoB4pcC25UOf0azNScIcRKdJrZw-9ddbHEVXwyHJ1akLEEpXehOBAeSlQs6rtWa2s=w1489-h889-no?authuser=0");
+
+  /* Full height */
+  /* height: 100%; */
+
+  /* Create the parallax scrolling effect */
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 .List {
   margin: 50px 50px 0px 50px;
   min-height: 700px;
+}
+
+.parallax {
+  /* The image used */
+  background-image: url("https://lh3.googleusercontent.com/gmtFjHkbNRGwiB-0N-FHqspG0sMiRQOMwTAJQt7n1paNmQ5X9-0khWBSNPW1yU8uNC0Gvmevrk6cmWXUX5YRnoN8K4bUt5S9LzKTBXEZqfsovnCbRL9LcaT64tTQEtkrkmrTOVX5M2MJUOf_Au3FuN4TM8ZsXP5cn5HnZDdcJ8_yl_AdIAnCM78BBtO3lds4obsEwpXmoGcBRZBhksOQ0ZlUQEhoPdUfIi9ypizf1-htrIrOxMMRj56qx2InCkqOkIox8gTIs6zRHm-59vfENHUKY9-Zq-N9r0r1q2GzXiZRJjhQW-a26C-xowvQaGlfrReyDJqUdxEErZUmRDm1z4RirNr2JE0Jaf1FEZs_6GV1QyL96-lh6aahbnWhZ6dBT372RxUZnT9eTtSoaR2eZEF6ydRwkCvpYDW4EQMXkz6o5T_DcUg5wzrvMJX0a6W6SaYngep_dxMBqiJRKJ-hA3T4P_jcADzHXALUvM8JmXtVMPc9FBRCofjJli4vbUx42IEwtlFX1pjcLSafPI7Pg0dVKvczr-gfN7qKBa03igEPpIN7SqrX81AzdUG50AMMz4L5eGjxxOWLUsb2Rpsf2_Wu00F13RGc9mZQrtfu9iC-_A1Y_7ND8fQLE_JxUd4_uqwBfa00vo0RuUPtcma-t8M6NbNlTl6a0IHgienA6KzaR-qKTBRml1x1859MdJqGXtFhaZgxGbDk3kim155DWCY=w572-h286-no?authuser=0");
+
+  /* Full height */
+  height: 100%;
+
+  /* Create the parallax scrolling effect */
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }

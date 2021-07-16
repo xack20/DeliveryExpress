@@ -21,9 +21,10 @@ import {
   Switch,
   Modal,
   Tooltip,
-  Empty, Tag
+  Empty,
+  Tag,
+  notification,
 } from "antd";
-
 
 import {
   PlusCircleOutlined,
@@ -34,12 +35,13 @@ import {
   DollarCircleOutlined,
   CloseOutlined,
   CheckOutlined,
+  ClockCircleFilled,
+  ClockCircleOutlined,
+  InfoCircleTwoTone
 } from "@ant-design/icons";
 
 import styles from "../index.module.css";
 import router from "next/router";
-
-
 
 const index = (props) => {
   const [data, setdata] = useState([]);
@@ -48,54 +50,114 @@ const index = (props) => {
 
   const [listItem, setlistItem] = useState({});
 
-  const APPROVAL = { 0: "Pending", 1: "Approved", 2: "Rejected", 3: "Paid" };
-  const STATUS = {
-    0: "Pending",
-    1: "Office Near You",
-    2: "On The Way",
-    3: "Destination Office",
-    4: "Done",
+  const APPROVAL = {
+    0: ["Pending", "default", <ClockCircleOutlined />],
+    1: ["Approved", "success", <CheckCircleOutlined />],
+    2: ["Rejected", "error", <CloseCircleOutlined />],
   };
+
+  const STATUS = {
+    0: ["You have it", "processing", <InfoCircleTwoTone />],
+    1: ["Office (Near You)", "default", <ClockCircleOutlined spin />],
+    2: ["On The Way", "processing", <SyncOutlined spin />],
+    3: ["Office (Near Dest.)", "default", <ClockCircleFilled spin />],
+    4: ["Reached to Dest.", "success", <CheckCircleOutlined />],
+  };
+
   const TOS = { 1: "Regular", 2: "SameDay", 3: "Direct" };
 
   const payment = async () => {
-      setVis(false);
-      setloading(true);
+    setVis(false);
+    setloading(true);
 
-      const val = (parseInt(listItem.cost)+1000000000000).toString();
+    const val = ((parseInt(listItem.cost) + 1) * 0.00051)
+      .toString()
+      .substring(0, 5);
 
-      // console.log(val,listItem.del_id,listItem.index);
+    let acc, back;
+    let prevBal;
 
-      const acc = await web3.eth.getAccounts();
-
-      const back = await delivery.methods.makePayment(
-        listItem.del_id,
-        listItem.index
-      ).send({
-        from : acc[0],
-        value : web3.utils.toWei(val, "ether")
+    try {
+      acc = await web3.eth.getAccounts();
+      prevBal = await web3.eth.getBalance(acc[0]);
+      back = await delivery.methods
+        .makePayment(listItem.del_id, listItem.index)
+        .send({
+          from: acc[0],
+          value: web3.utils.toWei(val, "ether"),
+        });
+        setloading(false);
+    } catch (error) {
+      notification.error({
+        message: `Something went wrong!`,
+        description: error.message,
+        placement: "bottomRight",
       });
-
-      console.log(back);
-
       setloading(false);
+    }
+
+    setloading(false);
+
+    const balNow = await web3.eth.getBalance(acc[0]);
+    const balDiff = (prevBal - balNow).toString();
+
+    notification.success({
+      message: `Request Approved`,
+      description: (
+        <div>
+          <p>
+            <b>Status : </b>
+            {back.status}
+          </p>
+          <p>
+            <b>TO : </b>
+            {back.to}
+          </p>
+          <p>
+            <b>Value sent : </b>
+            {balDiff}
+          </p>
+          <p>
+            <b>Balance Now : </b>
+            {parseInt(balNow)/1000000000000000000}
+          </p>
+          <p>
+            <b>GasUsed : </b>
+            {back.gasUsed}
+          </p>
+          <p>
+            <b>TrasactionHash : </b>
+            {back.transactionHash}
+          </p>
+        </div>
+      ),
+      placement: "bottomRight",
+    });
   };
 
   useEffect(async () => {
-    const acc = await web3.eth.getAccounts();
-    const DATA = await delivery.methods.getCourier(acc[0]).call({ from: acc[0] });
-    
-    let tempList=[];
-    for(let i=0;i<DATA.length;i++){
+    let acc, DATA;
+
+    try {
+      acc = await web3.eth.getAccounts();
+      DATA = await delivery.methods.getCourier(acc[0]).call({ from: acc[0] });
+    } catch (error) {
+      notification.error({
+        message: `Something went wrong!`,
+        description: error.message,
+        placement: "bottomRight",
+      });
+    }
+
+    let tempList = [];
+    for (let i = 0; i < DATA.length; i++) {
       tempList.push({
-        index:i,
-        ...DATA[i]
+        index: i,
+        ...DATA[i],
       });
     }
     setdata([...tempList].reverse());
-    
-    
-    
+
     setloading(false);
     message.success({
       content: "Data Loaded Successfully!",
@@ -110,40 +172,66 @@ const index = (props) => {
         <title>Courier Service</title>
       </Head>
 
-      {/* Modal Section Starts*/}
-
       <Spin size="large" tip="loading..." spinning={loading}>
         {data.length ? (
           <List
             className={styles.List}
-            // loading={initLoading}
             itemLayout="horizontal"
-            // loadMore={loadMore}
             dataSource={data}
             renderItem={(item) => (
               <List.Item
                 actions={[
-                  <Tag
-                    icon={<CheckCircleOutlined />}
-                    color="success"
-                    style={{ fontSize: "15px" }}
+                  <Tooltip
+                    title="Approval Status"
+                    color={
+                      APPROVAL[item.approval === "3" ? 1 : item.approval][1]
+                    }
+                    placement="topLeft"
                   >
-                    success
-                  </Tag>,
-                  <Tag
-                    icon={<SyncOutlined spin />}
-                    color="processing"
-                    style={{ fontSize: "15px" }}
+                    <Tag
+                      icon={
+                        APPROVAL[item.approval === "3" ? 1 : item.approval][2]
+                      }
+                      color={
+                        APPROVAL[item.approval === "3" ? 1 : item.approval][1]
+                      }
+                      style={{ fontSize: "15px" }}
+                    >
+                      {APPROVAL[item.approval === "3" ? 1 : item.approval][0]}
+                    </Tag>
+                  </Tooltip>,
+                  <Tooltip
+                    title="Payment Status"
+                    color={item.approval == 3 ? "success" : "error"}
+                    placement="topLeft"
                   >
-                    processing
-                  </Tag>,
-                  <Tag
-                    icon={<CloseCircleOutlined />}
-                    color="error"
-                    style={{ fontSize: "15px" }}
+                    <Tag
+                      icon={
+                        item.approval == 3 ? (
+                          <CheckCircleOutlined />
+                        ) : (
+                          <CloseCircleOutlined />
+                        )
+                      }
+                      color={item.approval == 3 ? "success" : "error"}
+                      style={{ fontSize: "15px" }}
+                    >
+                      {item.approval == 3 ? "Paid" : "Not Paid"}
+                    </Tag>
+                  </Tooltip>,
+                  <Tooltip
+                    color={STATUS[item.status][1]}
+                    title="Tracking Status"
+                    placement="topLeft"
                   >
-                    error
-                  </Tag>,
+                    <Tag
+                      icon={STATUS[item.status][2]}
+                      color={STATUS[item.status][1]}
+                      style={{ fontSize: "15px" }}
+                    >
+                      {STATUS[item.status][0]}
+                    </Tag>
+                  </Tooltip>,
                 ]}
                 onClick={() => {
                   setlistItem(item);
@@ -151,21 +239,18 @@ const index = (props) => {
                   setVis(true);
                 }}
               >
-                {/* <Skeleton avatar title={false} loading={item.loading} active> */}
                 <List.Item.Meta
                   avatar={
                     <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
                   }
                   title={
-                    <a href="https://ant.design">
+                    <a href="#">
                       Order ID - {item[0].toString().padStart(5, 0)}
                     </a>
                   }
                   description={item[10]}
                 />
                 <div>{item[11]}</div>
-
-                {/* </Skeleton> */}
               </List.Item>
             )}
           />
@@ -243,16 +328,10 @@ const index = (props) => {
             Details
           </h5>
           <Descriptions bordered>
-            <Descriptions.Item label="Approval">
-              {listItem[5] == "3" ? "Approved" : APPROVAL[listItem[5]]}
+            <Descriptions.Item label="Track ID">
+              {parseInt(listItem[0]).toString().padStart(5, 0)}-{listItem.index}
             </Descriptions.Item>
-            <Descriptions.Item label="Payment">
-              {listItem[5] == "3" ? "Paid" : "Not Paid"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Tracking Status">
-              {STATUS[listItem[7]]}
-            </Descriptions.Item>
-            <Descriptions.Item label="Cost">{listItem[6]}</Descriptions.Item>
+            <Descriptions.Item label="Cost">{listItem[6]} $</Descriptions.Item>
             <Descriptions.Item label="Full Description">
               Height : {listItem[1]} , Width : {listItem[2]} , Depth :{" "}
               {listItem[3]} , Weight : {listItem[4]}

@@ -1,22 +1,23 @@
 //NPM scripts
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
-import web3 from "../../Ethereum/web3";
-import styles from "../index.module.css";
-import router from "next/router";
+import Router from "next/router";
 
 //Own Scripts
 import delivery from "../../Ethereum/delivery.js";
 import LayoutCustom from "../../Components/LayoutCustom.js";
+import web3 from "../../Ethereum/web3";
 
 //CSS imports
 import "antd/dist/antd.css";
+import styles from "../index.module.css";
+
+// Antd Imports
 import {
   InputNumber,
   Form,
   List,
   Avatar,
-  Affix,
   Button,
   Spin,
   message,
@@ -28,10 +29,10 @@ import {
   Empty,
   Tag,
   Result,
+  notification,
 } from "antd";
 
 import {
-  PlusCircleOutlined,
   CheckCircleOutlined,
   SyncOutlined,
   CloseCircleOutlined,
@@ -39,6 +40,9 @@ import {
   CarryOutFilled,
   CloseOutlined,
   CheckOutlined,
+  ClockCircleFilled,
+  ClockCircleOutlined,
+  InfoCircleTwoTone
 } from "@ant-design/icons";
 
 const { Option } = Select;
@@ -59,124 +63,153 @@ const index = (props) => {
   const [restricted, setRestriction] = useState(true);
   const [listItem, setlistItem] = useState({});
 
-  const APPROVAL = { 0: "Pending", 1: "Approved", 2: "Rejected", 3: "Paid" };
-  const STATUS = {
-    0: "Pending",
-    1: "Office Near You",
-    2: "On The Way",
-    3: "Destination Office",
-    4: "Done",
+  const APPROVAL = {
+    0: ["Pending", "default", <ClockCircleOutlined />],
+    1: ["Approved", "success", <CheckCircleOutlined />],
+    2: ["Rejected", "error", <CloseCircleOutlined />],
   };
+
+  const STATUS = {
+    0: ["You have it", "processing", <InfoCircleTwoTone />],
+    1: ["Office (Near You)", "default", <ClockCircleOutlined spin />],
+    2: ["On The Way", "processing", <SyncOutlined spin />],
+    3: ["Office (Near Dest.)", "default", <ClockCircleFilled spin />],
+    4: ["Reached to Dest.", "success", <CheckCircleOutlined />],
+  };
+
   const TOS = { 1: "Regular", 2: "SameDay", 3: "Direct" };
 
-  // useEffect(() => {
-  //   // setVis(true);
-  // }, [listItem]);
-
   const onFinish = async (values) => {
-    setVis(false);
-    setloading(true);
+    try {
+      setVis(false);
+      setloading(true);
 
-    const acc = await web3.eth.getAccounts();
+      const acc = await web3.eth.getAccounts();
 
-    if (values["status"] !== undefined && values["status"] != listItem.status) {
-      const back = await delivery.methods
-        .setStatus(
-          listItem.requestFrom,
-          listItem.index,
-          values["status"],
-          !(parseInt(listItem.del_id) & 1) ? "0" : "1"
-        )
-        .send({ from: acc[0] });
+      if (
+        values["status"] !== undefined &&
+        values["status"] !== listItem.status
+      ) {
+        const back = await delivery.methods
+          .setStatus(
+            listItem.requestFrom,
+            listItem.index,
+            values["status"],
+            (parseInt(listItem.del_id) & 1) === 1 ? "0" : "1"
+          )
+          .send({ from: acc[0] });
+      }
+
+      if (
+        values["approval"] !== undefined &&
+        values["approval"] !== listItem.approval
+      ) {
+        const back = await delivery.methods
+          .setApproval(
+            values["approval"],
+            listItem.requestFrom,
+            listItem.del_id,
+            listItem.index
+          )
+          .send({ from: acc[0] });
+      }
+
+      if (values["cost"] !== undefined && values["cost"] !== listItem.cost) {
+        const back = await delivery.methods
+          .setCost(
+            values["cost"],
+            listItem.requestFrom,
+            listItem.del_id,
+            listItem.index
+          )
+          .send({ from: acc[0] });
+      }
+
+      setloading(false);
+      Router.reload(window.location.pathname);
+    } catch (error) {
+      notification.error({
+        message: `Something went wrong!`,
+        description: error.message,
+        placement: "bottomRight",
+      });
+      setloading(false);
     }
-
-    if (
-      values["approval"] !== undefined &&
-      values["approval"] != listItem.approval
-    ) {
-      const back = await delivery.methods
-        .setApproval(
-          values["approval"],
-          listItem.requestFrom,
-          listItem.del_id,
-          listItem.index
-        )
-        .send({ from: acc[0] });
-    }
-
-    if (values["cost"] !== undefined && values["cost"] != listItem.cost) {
-      const back = await delivery.methods
-        .setCost(
-          values["cost"],
-          listItem.requestFrom,
-          listItem.del_id,
-          listItem.index
-        )
-        .send({ from: acc[0] });
-    }
-
-    setloading(false);
   };
 
   useEffect(async () => {
-    const acc = await web3.eth.getAccounts();
+    try {
+      const acc = await web3.eth.getAccounts();
 
-    const admin = await delivery.methods.admin().call();
+      const admin = await delivery.methods.admin().call();
 
-    if (admin == acc[0]) {
-      setRestriction(false);
-      setloading(true);
+      if (admin == acc[0]) {
+        setRestriction(false);
+        setloading(true);
 
-      // data fetching
-      const allUsers = await delivery.methods
-        .getAllUsers()
-        .call({ from: acc[0] });
+        // data fetching
 
-      // console.log(allUsers);
-
-      let QuotesList = [];
-
-      for (let i = 0; i < allUsers.length; i++) {
-        const couriers = await delivery.methods
-          .getCourier(allUsers[i])
-          .call({ from: acc[0] });
-        const shippings = await delivery.methods
-          .getShipping(allUsers[i])
+        const allUsers = await delivery.methods
+          .getAllUsers()
           .call({ from: acc[0] });
 
-        for (let i = 0; i < couriers.length; i++) {
-          QuotesList.push({
-            index: i,
-            ...couriers[i],
-          });
+        let QuotesList = [];
+
+        for (let i = 0; i < allUsers.length; i++) {
+          const couriers = await delivery.methods
+            .getCourier(allUsers[i])
+            .call({ from: acc[0] });
+          const shippings = await delivery.methods
+            .getShipping(allUsers[i])
+            .call({ from: acc[0] });
+
+          for (let i = 0; i < couriers.length; i++) {
+            QuotesList.push({
+              index: i,
+              ...couriers[i],
+            });
+          }
+
+          for (let i = 0; i < shippings.length; i++) {
+            QuotesList.push({
+              index: i,
+              ...shippings[i],
+            });
+          }
         }
 
-        for (let i = 0; i < shippings.length; i++) {
-          QuotesList.push({
-            index: i,
-            ...shippings[i],
+        QuotesList.sort((a, b) => new Date(b["date"]) - new Date(a["date"]));
+
+        setdata(QuotesList);
+
+        setloading(false);
+
+        if (QuotesList.length)
+          message.success({
+            content: "Data Loaded Successfully!",
+            style: { marginTop: "10vh" },
+            duration: 0.5,
           });
-        }
+        else
+          message.warning({
+            content: "Nothing to Display!",
+            style: { marginTop: "10vh" },
+            duration: 2,
+          });
+      } else {
+        message.error({
+          content: "Only Admin can access this page!",
+          style: { marginTop: "10vh" },
+          duration: 2,
+        });
       }
-
-      QuotesList.sort((a, b) => new Date(b["date"]) - new Date(a["date"]));
-
-      // console.log(QuotesList);
-
-      setdata(QuotesList);
-
+    } catch {
+      notification.error({
+        message: `Something went wrong!`,
+        description: error.message,
+        placement: "bottomRight",
+      });
       setloading(false);
-      message.success({
-        content: "Data Loaded Successfully!",
-        style: { marginTop: "10vh" },
-        duration: 0.5,
-      });
-    } else {
-      message.error({
-        content: "Only Admin can access this page!",
-        style: { marginTop: "10vh" },
-        duration: 2,
-      });
     }
   }, []);
 
@@ -200,36 +233,74 @@ const index = (props) => {
               />
             ) : (
               <List
+                style={{ margin: "25px" }}
                 className={styles.List}
                 itemLayout="horizontal"
                 dataSource={data}
                 renderItem={(item) => (
                   <List.Item
                     actions={[
-                      <Tag
-                        icon={<CheckCircleOutlined />}
-                        color="success"
-                        style={{ fontSize: "15px" }}
+                      <Tooltip
+                        title="Approval Status"
+                        color={
+                          APPROVAL[item.approval === "3" ? 1 : item.approval][1]
+                        }
+                        placement="topLeft"
                       >
-                        success
-                      </Tag>,
-                      <Tag
-                        icon={<SyncOutlined spin />}
-                        color="processing"
-                        style={{ fontSize: "15px" }}
+                        <Tag
+                          icon={
+                            APPROVAL[
+                              item.approval === "3" ? 1 : item.approval
+                            ][2]
+                          }
+                          color={
+                            APPROVAL[
+                              item.approval === "3" ? 1 : item.approval
+                            ][1]
+                          }
+                          style={{ fontSize: "15px" }}
+                        >
+                          {
+                            APPROVAL[
+                              item.approval === "3" ? 1 : item.approval
+                            ][0]
+                          }
+                        </Tag>
+                      </Tooltip>,
+                      <Tooltip
+                        title="Payment Status"
+                        color={item.approval == 3 ? "success" : "error"}
+                        placement="topLeft"
                       >
-                        processing
-                      </Tag>,
-                      <Tag
-                        icon={<CloseCircleOutlined />}
-                        color="error"
-                        style={{ fontSize: "15px" }}
+                        <Tag
+                          icon={
+                            item.approval == 3 ? (
+                              <CheckCircleOutlined />
+                            ) : (
+                              <CloseCircleOutlined />
+                            )
+                          }
+                          color={item.approval == 3 ? "success" : "error"}
+                          style={{ fontSize: "15px" }}
+                        >
+                          {item.approval == 3 ? "Paid" : "Not Paid"}
+                        </Tag>
+                      </Tooltip>,
+                      <Tooltip
+                        color={STATUS[item.status][1]}
+                        title="Tracking Status"
+                        placement="topLeft"
                       >
-                        error
-                      </Tag>,
+                        <Tag
+                          icon={STATUS[item.status][2]}
+                          color={STATUS[item.status][1]}
+                          style={{ fontSize: "15px" }}
+                        >
+                          {STATUS[item.status][0]}
+                        </Tag>
+                      </Tooltip>,
                     ]}
                     onClick={() => {
-                      
                       setlistItem(item);
                       console.log(item);
                       setVis(true);
@@ -240,7 +311,7 @@ const index = (props) => {
                         <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
                       }
                       title={
-                        <a href="https://ant.design">
+                        <a href="#">
                           Order ID - {item.del_id.toString().padStart(5, 0)}
                         </a>
                       }
@@ -252,33 +323,6 @@ const index = (props) => {
               />
             )}
 
-            <Affix
-              style={{ position: "absolute", top: 500, left: 1375 }}
-              offsetTop={550}
-            >
-              <Tooltip
-                title="Add new request"
-                color={"#40a9ff"}
-                placement={"topLeft"}
-              >
-                <Button
-                  type="text"
-                  shape="circle"
-                  size="large"
-                  icon={
-                    <PlusCircleOutlined
-                      style={{
-                        fontSize: "45px",
-                        color: "#096dd9",
-                      }}
-                    />
-                  }
-                  onClick={() => {
-                    router.push("/courier/new");
-                  }}
-                />
-              </Tooltip>
-            </Affix>
             <Modal
               visible={VIS}
               onCancel={() => {
@@ -316,16 +360,21 @@ const index = (props) => {
               </h5>
               {parseInt(listItem.del_id) & 1 ? (
                 <Descriptions bordered>
-                  <Descriptions.Item label="Payment">
-                    {listItem.approval == "3" ? "Paid" : "Not Paid"}
-                  </Descriptions.Item>
-
                   <Descriptions.Item label="Order ID">
                     {parseInt(listItem.del_id).toString().padStart(5, 0)}
                   </Descriptions.Item>
 
                   <Descriptions.Item label="Date">
                     {listItem.date}
+                  </Descriptions.Item>
+
+                  <Descriptions.Item label="Cost">
+                    {listItem.cost} $
+                  </Descriptions.Item>
+
+                  <Descriptions.Item label="Track ID">
+                    {parseInt(listItem[0]).toString().padStart(5, 0)}-
+                    {listItem.index}
                   </Descriptions.Item>
 
                   <Descriptions.Item label="Full Description">
@@ -339,16 +388,21 @@ const index = (props) => {
                 </Descriptions>
               ) : (
                 <Descriptions bordered>
-                  <Descriptions.Item label="Payment">
-                    {listItem.approval == "3" ? "Paid" : "Not Paid"}
-                  </Descriptions.Item>
-
                   <Descriptions.Item label="Order ID">
                     {parseInt(listItem.del_id).toString().padStart(5, 0)}
                   </Descriptions.Item>
 
                   <Descriptions.Item label="Date">
                     {listItem.date}
+                  </Descriptions.Item>
+
+                  <Descriptions.Item label="Cost">
+                    {listItem.cost} $
+                  </Descriptions.Item>
+
+                  <Descriptions.Item label="Track ID">
+                    {parseInt(listItem[0]).toString().padStart(5, 0)}-
+                    {listItem.index}
                   </Descriptions.Item>
 
                   <Descriptions.Item label="Full Description">
@@ -368,14 +422,7 @@ const index = (props) => {
                 style={{ marginTop: "20px" }}
               >
                 <Form.Item name="approval" label="Approval Status" hasFeedback>
-                  <Select
-                    placeholder="Please select.."
-                    defaultValue={
-                      listItem.approval == "3"
-                        ? "Approved"
-                        : APPROVAL[listItem.approval]
-                    }
-                  >
+                  <Select placeholder="Please select..">
                     <Option value="0">Pending</Option>
                     <Option value="1">Approved</Option>
                     <Option value="2">Rejected</Option>
@@ -384,9 +431,8 @@ const index = (props) => {
 
                 <Form.Item name="cost" label="Cost" hasFeedback>
                   <InputNumber
-                    defaultValue={listItem.cost}
                     formatter={(value) =>
-                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                     }
                     parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
                     style={{ width: "100%" }}
@@ -395,15 +441,12 @@ const index = (props) => {
                 </Form.Item>
 
                 <Form.Item name="status" label="Tracking Status" hasFeedback>
-                  <Select
-                    placeholder="Please select.."
-                    defaultValue={STATUS[listItem.status]}
-                  >
-                    <Option value="0">Pending</Option>
-                    <Option value="1">Office Near You</Option>
+                  <Select placeholder="Please select..">
+                    <Option value="0">You have it</Option>
+                    <Option value="1">Office(Near You)</Option>
                     <Option value="2">On The Way</Option>
-                    <Option value="3">Destination Office</Option>
-                    <Option value="4">Done</Option>
+                    <Option value="3">Office (Near Dest.)</Option>
+                    <Option value="4">Reached Dest.</Option>
                   </Select>
                 </Form.Item>
 
