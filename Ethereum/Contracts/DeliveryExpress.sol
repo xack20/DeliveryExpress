@@ -80,22 +80,26 @@ contract DeliveryExpress {
 
     
     // function for handling payment 
-    function makePayment(uint256 id, uint256 index) external payable {
+    function makePayment(uint256 id, uint256 index, uint dollarTOwei) external payable {
         uint256 rem_bal;
 
+        uint cost; 
+
         if (id & 1 == 1) {
-            require(msg.value > courierUserInfo[msg.sender][index].cost);
+            cost = courierUserInfo[msg.sender][index].cost * dollarTOwei;
+            require(msg.value >= cost);
             require(id == courierUserInfo[msg.sender][index].del_id);
 
-            rem_bal = msg.value - courierUserInfo[msg.sender][index].cost;
+            rem_bal = msg.value - cost;
             (msg.sender).transfer(rem_bal);
 
             courierUserInfo[msg.sender][index].approval = 3;
         } else {
-            require(msg.value > shippingUserInfo[msg.sender][index].cost);
+            cost = shippingUserInfo[msg.sender][index].cost * dollarTOwei;
+            require(msg.value > cost);
             require(id == shippingUserInfo[msg.sender][index].del_id);
 
-            rem_bal = msg.value - shippingUserInfo[msg.sender][index].cost;
+            rem_bal = msg.value - cost;
             (msg.sender).transfer(rem_bal);
 
             shippingUserInfo[msg.sender][index].approval = 3;
@@ -134,31 +138,25 @@ contract DeliveryExpress {
                 : shippingUserInfo[msg.sender][index].status;
     }
 
-    // only admin can perform quotes approval using this function
+    // only admin can perform quotes approval and set cost using this function
     function setApproval(
         uint256 approval,
-        address userAddress,
-        uint256 id,
-        uint256 index
-    ) external {
-        require(msg.sender == admin);
-        (id & 1 == 1)
-            ? courierUserInfo[userAddress][index].approval = approval
-            : shippingUserInfo[userAddress][index].approval = approval;
-    }
-
-    // only admin can set cost for any service using this function
-    function setCost(
         uint256 cost,
         address userAddress,
         uint256 id,
         uint256 index
     ) external {
         require(msg.sender == admin);
-        (id & 1 == 1)
-            ? courierUserInfo[userAddress][index].cost = cost
-            : shippingUserInfo[userAddress][index].cost = cost;
+        if(id & 1 == 1){
+            courierUserInfo[userAddress][index].cost = cost;
+            courierUserInfo[userAddress][index].approval = approval;
+        }
+        else{
+            shippingUserInfo[userAddress][index].cost = cost;
+            shippingUserInfo[userAddress][index].approval = approval;
+        }
     }
+
 
 
     // user can add courier quote request using this function

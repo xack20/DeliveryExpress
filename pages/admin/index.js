@@ -102,21 +102,12 @@ const index = (props) => {
 
       if (
         values["approval"] !== undefined &&
-        values["approval"] !== listItem.approval
+        values["approval"] !== listItem.approval &&
+        values["cost"] !== undefined && values["cost"] !== listItem.cost
       ) {
         const back = await delivery.methods
           .setApproval(
             values["approval"],
-            listItem.requestFrom,
-            listItem.del_id,
-            listItem.index
-          )
-          .send({ from: acc[0] });
-      }
-
-      if (values["cost"] !== undefined && values["cost"] !== listItem.cost) {
-        const back = await delivery.methods
-          .setCost(
             values["cost"],
             listItem.requestFrom,
             listItem.del_id,

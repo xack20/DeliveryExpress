@@ -38,6 +38,10 @@ const formItemLayout = {
 const CreateQuote = (props) => {
   const [loading, setloading] = useState(false);
 
+  const notificationOnClose = () => {
+    router.push("/courier");
+  }
+
   const onFinish = async (values) => {
     setloading(true);
 
@@ -63,40 +67,20 @@ const CreateQuote = (props) => {
     // console.log(back);
 
     notification.success({
-      message: `Request Approved`,
-      description: (
-        <div>
-          <p><b>Status : </b>{back.status}</p>
-          <p><b>From : </b>{back.from}</p>
-          <p><b>To : </b>{back.to}</p>
-          <p><b>GasUsed : </b>{back.gasUsed}</p>
-          <p><b>TrasactionHash : </b>{back.transactionHash}</p>
-        </div>
-      ),
-      placement: "bottomRight",
+      message: `Request Added for Approval!`,
+      placement: "bottomLeft",
+      onClose : notificationOnClose,
     });
-
-    // message.success({
-    //   content: "Request Accepted!",
-    //   style: { marginTop: "10vh" },
-    //   duration: 1,
-    // });
     setloading(false);
   }catch(error){
     notification.error({
       message: `Error Occured`,
-      description: (
-        <div>
-          <p><b>Error : </b>{error}</p>
-        </div>
-      ),
+      description: error.message,
       placement: "bottomRight",
     });
     setloading(false);
   }
   setloading(false);
-
-    router.push("/courier");
   };
 
   return (
