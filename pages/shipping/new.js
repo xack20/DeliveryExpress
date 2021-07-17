@@ -37,6 +37,10 @@ const formItemLayout = {
 const CreateQuote = (props) => {
   const [loading, setloading] = useState(false);
 
+  const notificationOnClose = () => {
+    router.push("/shipping");
+  }
+
   const onFinish = async (values) => {
     setloading(true);
 
@@ -68,67 +72,16 @@ const CreateQuote = (props) => {
         .send({ from: acc[0] });
 
       notification.success({
-        message: `Request Approved`,
-        description: (
-          <div>
-            <p>
-              <b>Status : </b>
-              {back.status}
-            </p>
-            <p>
-              <b>From : </b>
-              {back.from}
-            </p>
-            <p>
-              <b>To : </b>
-              {back.to}
-            </p>
-            <p>
-              <b>GasUsed : </b>
-              {back.gasUsed}
-            </p>
-            <p>
-              <b>TrasactionHash : </b>
-              {back.transactionHash}
-            </p>
-          </div>
-        ),
-        placement: "bottomRight",
+        message: `Request Added for Approval!`,
+        placement: "bottomLeft",
+        onClose : notificationOnClose,
       });
 
-      // message.success({
-      //   content: "Request Accepted!",
-      //   style: { marginTop: "10vh" },
-      //   duration: 1,
-      // });
       setloading(false);
     } catch (error) {
       notification.error({
         message: `Request Rejected`,
-        description: (
-          <div>
-            <p>
-              <b>Status : </b>
-              {error.status}
-            </p>
-            <p>
-              <b>From : </b>
-              {error.from}
-            </p>
-            <p>
-              <b>To : </b>
-              {error.to}
-            </p>
-            <p>
-              <b>GasUsed : </b>
-              {error.gasUsed}
-            </p>
-            <p>
-              <b>TrasactionHash : </b>
-              {error.transactionHash}
-            </p>
-          </div>
-        ),
+        description: error.message,
         placement: "bottomRight",
       });
       setloading(false);
@@ -136,7 +89,7 @@ const CreateQuote = (props) => {
 
     setloading(false);
 
-    router.push("/shipping");
+    
   };
 
   return (

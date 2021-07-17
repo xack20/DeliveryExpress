@@ -7,7 +7,15 @@ import delivery from "../Ethereum/delivery.js";
 import web3 from "../Ethereum/web3.js";
 import LayoutCustom from "../Components/LayoutCustom.js";
 
-import { Input, Modal, notification, Spin } from "antd";
+import { Input, Modal, notification, Spin,Tag } from "antd";
+
+import {
+  CheckCircleOutlined,
+  SyncOutlined,
+  ClockCircleFilled,
+  ClockCircleOutlined,
+  InfoCircleTwoTone,
+} from "@ant-design/icons";
 
 //CSS imports
 import "antd/dist/antd.css";
@@ -17,14 +25,13 @@ const { Search } = Input;
 
 const tracking = (props) => {
   const STATUS = {
-    0: "You have it!",
-    1: "Office (Near You)",
-    2: "On The Way",
-    3: "Office (Near Dest.)",
-    4: "Reached to Dest.",
+    0: ["You have it", "processing", <InfoCircleTwoTone />],
+    1: ["Office (Near You)", "default", <ClockCircleOutlined spin />],
+    2: ["On The Way", "processing", <SyncOutlined spin />],
+    3: ["Office (Near Dest.)", "default", <ClockCircleFilled spin />],
+    4: ["Reached to Dest.", "success", <CheckCircleOutlined />],
   };
 
-  const [state, setstate] = useState("");
   const [spinning, setSpinning] = useState(false);
 
   const onSearch = async (e) => {
@@ -35,22 +42,25 @@ const tracking = (props) => {
       const status = await delivery.methods
         .getStatus(parseInt(parts[0]), parseInt(parts[1]))
         .call({ from: acc[0] });
-      setstate(STATUS[status]);
-      
+
       setSpinning(false);
-      
+
       Modal.info({
-        title: 'Recent Status',
+        title: "Recent Status",
         content: (
           <div>
             <p>Your Product's recent status is...</p>
-            <p><b>{STATUS[status]}</b></p>
+            <Tag
+              icon={STATUS[status][2]}
+              color={STATUS[status][1]}
+              style={{ fontSize: "15px" }}
+            >
+              {STATUS[status][0]}
+            </Tag>
           </div>
         ),
         onOk() {},
-
       });
-
     } catch (error) {
       notification.error({
         message: `Something went wrong!`,
@@ -58,8 +68,6 @@ const tracking = (props) => {
         placement: "bottomRight",
       });
     }
-
-    // console.log(status);
     setSpinning(false);
   };
 
@@ -115,7 +123,6 @@ const tracking = (props) => {
           ></div>
         </div>
       </Spin>
-      
     </LayoutCustom>
   );
 };

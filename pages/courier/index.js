@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import web3 from "../../Ethereum/web3";
 import Router from "next/router";
+import axios from 'axios';
 
 //Own Scripts
 import delivery from "../../Ethereum/delivery.js";
@@ -71,6 +72,20 @@ const index = (props) => {
 
   const TOS = { 1: "Regular", 2: "SameDay", 3: "Direct" };
 
+  /// Notification on close
+  const notificationOnClose = () => {
+    Router.reload(window.location.pathname);
+  }
+
+  /// Dollar to Ether Conversion
+  const [wei, setWEI] = useState(0)
+
+  useEffect(async() => {
+    const res = await axios.get("https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=ETH");
+    setWEI((res.data.ETH)*(1000000000000000000));
+  }, [])
+
+
   /// User info form
   const onFinish = async (values) => {
     setvis(false);
@@ -118,9 +133,7 @@ const index = (props) => {
     setVis(false);
     setloading(true);
 
-    const val = ((parseInt(listItem.cost) + 1) * 0.00052)
-      .toString()
-      .substring(0, 5);
+    const cost = Math.ceil(parseInt(listItem.cost) * wei) ;
 
     let acc, back;
     let prevBal;
@@ -129,10 +142,10 @@ const index = (props) => {
       acc = await web3.eth.getAccounts();
       prevBal = await web3.eth.getBalance(acc[0]);
       back = await delivery.methods
-        .makePayment(listItem.del_id, listItem.index)
+        .makePayment(listItem.del_id, listItem.index,wei)
         .send({
           from: acc[0],
-          value: web3.utils.toWei(val, "ether"),
+          value: cost,
         });
       setloading(false);
 
@@ -170,6 +183,8 @@ const index = (props) => {
           </div>
         ),
         placement: "bottomRight",
+        
+        onClose :notificationOnClose,
       });
     } catch (error) {
       notification.error({
@@ -180,9 +195,6 @@ const index = (props) => {
       setloading(false);
     }
     setloading(false);
-    setTimeout(function () {
-      Router.reload(window.location.pathname);
-    }, 5000);
   };
 
   useEffect(async () => {
