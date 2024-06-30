@@ -61,4 +61,4 @@ npm run test
 
 ## License/ Copyright
 
-© BJIT Limited
+© xack20
